@@ -1,18 +1,20 @@
 
 """
-En este script se utiliza información sobre componentes abióticos y componentes bióticos (número de individuos de otras especies
-también presentes en el subplot) para predecir el número de individuals que aparecerán en un determinado subplot.
+This script uses information on abiotic components and biotic components (number of individuals of other species
+also present in the subplot) to predict the number of individuals that will appear in a given subplot.
 
-La diferencia con el modelo que se entrena en 1_abundacia_edaf_Comp es que en este caso no se parte de un dataset con todas las
-variables y realizamos la predicción de individuals a partir de todas ellas. Lo que se hace en este script es un modelo predictivo en
-dos pasos:
-    1. Utilizamos los datos de componentes abióticos como features y la variable target a predecir será cada una de las diferentes especies de plantas
-    competidoras.
+
+The difference with the model that is trained in 1_abundacia_edaf_Comp is that in this 
+case we do not start from a dataset with all the variables and we make the prediction 
+of individuals from all of them. What is done in this script is a predictive model 
+in two steps:
+     1. We use the data of abiotic components as features and the target variable 
+     to predict will be each of the different species of competing plants.
     
-    2. Una vez que se ha realizado la predicción del número de especies competidoras que crecerían en un determinado subplot a partir de
-    esas condiciones abióticas, se utiliza como features (daaframe X) tanto esos parámetros edáficos como los componentes bióticos para predecir
-    el número de individuals.
-
+     2. Once the prediction of the number of competing species that would grow in 
+     a given subplot from these abiotic conditions has been made, both these edaphic 
+     parameters and the biotic components are used as features (dataframe X) to 
+     predict the number of individuals. .
 """
 
 import pandas as pd
@@ -45,13 +47,17 @@ else:
     smote_yn = 'y'
 
 """
-Dado que  se va a trabajar con componentes abióticos y bióticos, se cargarán ambos datasets y se realiza un merge de ambos  utilizando el índice como
-columna de unión. Inicialmente en los dataset están presentes columnas que no se van a utilizar para
-la predicción. Estas son: year, month, day, plotID, x, y, subplot. Además, existen columnas duplicadas en ambos datasets, por este motivo se 
-realiza una selección de las variables que se utilizarán para entrenar el modelo.
+Since we are going to work with abiotic and biotic components, both datasets will be 
+loaded and both are merged using the index as a joining column. 
+There are some columns in the datasets that will not be used for prediction tasks. 
+These are: year, month, day, plotID, x, y, subplot. In addition, there are duplicate 
+columns in both datasets. For this reason a selection is made of the variables that 
+will be used to train the model.
 
-Estas variables son las incluidas en col_list. Sin embargo, dado que el primer paso consiste en realizar la predicción del número de plantas de cada 
-una de las especies que se desarrollarían por subplot en función de las condiciones abióticas, se ha generado train_list, que será el dataframe X.
+These variables are the ones included in col_list. However, since the first step is 
+to predict the number of plants of each of the species that would develop per 
+subplot based on abiotic conditions, train_list has been generated, which will
+ be the X dataframe.
 """
 
 print("Two-step predictor")
@@ -85,22 +91,22 @@ conditions_types = conditions.dtypes
 
 "Data Wrangling"
 
-"Transformamos la variable species a numérica"
+"Species feature is coded as numeric"
 le = LabelEncoder()
 le.fit(conditions[['species']])
 conditions[['species']] = le.transform(conditions[['species']])
 
 
-"Transformamos la variable present a numérica"
+"Present feature is coded as numeric"
 le = LabelEncoder()
 le.fit(conditions[['present']])
 conditions[['present']] = le.transform(conditions[['present']])
 
 """
-La variable present indica si el número de individuals en ese terreno es mayor que 0 (True) o no.
-Hay un 25% de los datos en los que present es True, es decir, que sólo en el 25% de las filas
-el número de individuals es > 0. Se planteo hacer un SMOTE para balancear el dataset, pero los
-resultados empeoraban, por lo que se descartó.
+Present feature indicates whether the number of individuals in that field is greater than 0 (True) or not.
+There is 25% of the data in which present is True, that is, only in 25% of the rows the
+number of individuals is> 0. It was proposed to do a SMOTE to balance the dataset, 
+but the results worsened, what was discarded.
 
 """
 
@@ -134,7 +140,7 @@ else:
 
 
 
-"Estandarizacion de los datos"
+"Standarization"
 
 conditions_model_train = conditions[train_list]
 
@@ -146,15 +152,17 @@ conditions_model_train = std_scaler_model.transform(conditions_model_train)
 
 """
 
-Una vez que se han estandarizado los datos edáficos,se los asignamos al dataframe X. Dado que present sólo contiene los valores 0 y 1, no tiene sentido 
-mantener los valores tras la estandarización por lo que se vuelven a reemplazar por 0 y 1.
+Once the edaphic data have been standardized, we assign them to the X dataframe.
+ Since present only contains the values 0 and 1, it does not make sense to keep
+ the values after standardization so they are replaced again by 0 and 1.
 
-La variable target y es un dataframe con todas las especies que se van a predecir. Para realizar las predicciones se ha impementado un bucle, de
-forma que la variable a predecir será una especie diferente en cada iteración.
+The variable target y is a dataframe with all the species to be predicted. 
+To make the predictions, a loop has been implemented, so that the variable to 
+be predicted will be a different species in each iteration.
 
 """
 
-"Division Train Test"
+"Train Test Split"
 
 X = pd.DataFrame(data = conditions_model_train, columns = train_list)
 X[['present']] = conditions[['present']]
@@ -173,7 +181,7 @@ rmse_rf = {}
 rse_rf = {}
 
 
-"Parámetros Random Forest"
+"Random Forest parameters"
 
 
 n_estimators = [100,150]
@@ -188,7 +196,7 @@ for i in range(0, len(features_to_pred)):
     variables_to_ignore = features_to_pred[i]
     print("--------------TARGET "+str(variables_to_ignore))
     
-    "Division Train Test"
+    "Train Test split"
     
     
     X_train = X_train_species
@@ -198,7 +206,7 @@ for i in range(0, len(features_to_pred)):
     y_test = y_test_species[variables_to_ignore]
     
         
-    "Algoritmos y Evaluación"
+    "Algorithms and evaluation"
     
     "Random Forest"
     
@@ -219,16 +227,18 @@ for i in range(0, len(features_to_pred)):
 
 """
 
-Una vez que ha concluido la predicción de cada una de las especies, se vuelve a redefinir el dataframe X con todas las variables abióticas y bióticas.
-Para ello se utiliza la variable y_pred obtenida en el primer paso, que se une al X_test de componentes edáficos que nos habíamos dejado. Por
-este motivo es necesario quitar el índice y volver a asignarlo.
+Once the prediction for each of the species has been completed, the X dataframe 
+is redefined with all the abiotic and biotic variables. For this, the variable 
+y_pred obtained in the first step is used, which joins the X_test of edaphic 
+components that we had left. For this reason, it is necessary to drop the 
+index and reassign it.
 
-Por otra parte,también necesitamos extraer aquellos registros del conjunto inicial para la variable individuals que coincidan con los datos 
-asignados a test.
+On the other hand, we also need to extract those records from the initial set 
+for the individuals variable that match the data assigned to test.
 
 """
 
-"Utilizamos los resultados para predecir individuals"
+"Results are used to predict individuals"
 
 features_to_pred = ['individuals']
 selected_features = [element for element in col_list if element not in features_to_pred]
@@ -243,8 +253,9 @@ y_individuals = conditions[features_to_pred].iloc[y_test_species.index].reset_in
 data = X_individuals.join(y_individuals)
 
 """
-Como el nuevo data corresponde al dataframe utilizado como test para el primer paso, se hace un remuestreo a partir de la varaible
-present, que era la que estaba más desbalanceada.
+As the new data corresponds to the dataframe used as a test for the first step,
+ a resampling is made from the variable present, which was the one that was the
+ most unbalanced.
 
 """
     
@@ -264,7 +275,7 @@ y_ind = data['individuals']
 X_train_individuals, X_test_individuals, y_train_individuals, y_test_individuals = train_test_split(X_ind, y_ind, train_size= 0.8)
 
 
-"Algoritmos y Evaluación"
+"Algorithms and evaluation"
 
 "Linear Regression"
 

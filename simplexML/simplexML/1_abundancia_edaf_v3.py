@@ -1,6 +1,6 @@
 """
-En este script se utiliza información sobre componentes abióticos para predecir el número
-de individuals que aparecerán en un determinado subplot.
+This script uses information on abiotic components to predict the number
+of individuals that will appear in a certain subplot.
 
 """
 
@@ -42,9 +42,10 @@ print("Predictor with environmental data only")
 print("=======================================")
 
 """
-Dado que únicamente se va a trabajar con componentes abióticos, sólo se utilizará ese
-dataset. Inicialmente en el dataset están presentes columnas que no se van a utilizar para
-la predicción. Estas son: year, month, day, plotID, x, y, subplot.
+Since we are going to work with abiotic components, just onte dataset will be used. 
+There are some columns in the dataset that will not be used for prediction tasks. 
+These are: year, month, day, plotID, x, y, subplot. 
+
 """
 
 individuals_train = pd.read_csv('datasets/abund_merged_dataset_onlyenvironment.csv', sep=',')
@@ -62,21 +63,21 @@ individuals_types = individuals_train.dtypes
 
 "Data Wrangling"
 
-"Transformamos la variable species a numérica"
+"Species feature is coded as numeric"
 le = LabelEncoder()
 le.fit(individuals_train[['species']])
 individuals_train[['species']] = le.transform(individuals_train[['species']])
 
-"Transformamos la variable present a numérica"
+"Present feature is coded as numeric"
 le = LabelEncoder()
 le.fit(individuals_train[['present']])
 individuals_train[['present']] = le.transform(individuals_train[['present']])
 
 """
-La variable present indica si el número de individuals en ese terreno es mayor que 0 (True) o no.
-Hay un 25% de los datos en los que present es True, es decir, que sólo en el 25% de las filas
-el número de individuals es > 0. Se planteo hacer un SMOTE para balancear el dataset, pero los
-resultados empeoraban, por lo que se descartó.
+Present feature indicates whether the number of individuals in that field is greater than 0 (True) or not.
+There is 25% of the data in which present is True, that is, only in 25% of the rows the
+number of individuals is> 0. It was proposed to do a SMOTE to balance the dataset, 
+but the results worsened, what was discarded.
 
 """
 
@@ -101,13 +102,14 @@ if verbose:
     print(individuals_train.dtypes)
     
 """
-También se estudió la reducción de la dimensionalidad a partir de la técnica "del canario". Consiste
-en intruducir una variable de ruido aleatorio para posteriormente analizar qué variables en mi
-dataset aportan más información que ese ruido aleatorio. 
-Lo que se vio en este análisis es que existen únicamente cuatro variables que aportan mayor información
-que el ruido aleatorio desde el punto de vista de feature imporance, y son: species, precip, present y
-co3. Llevar a cabo la predicción con estas variables únicamente no aportaba mejores resultados, por lo
-que se descartó la reducción de la dimensionalidad.
+The reduction of dimensionality was also studied using a feature selection technique. 
+It consists of introducing a random noise variable to later analyze which variables 
+in my dataset provide more information than that random noise.
+
+What was seen in this analysis is that there are only four variables that provide more 
+information than random noise from the point of view of feature imporance, and they are: 
+species, precip, present and co3. Carrying out the prediction with these variables 
+did not provide better results, so the reduction in dimensionality was ruled out.
 
 """
 
@@ -145,15 +147,15 @@ feature_importance.reset_index(inplace = True)
 
 
 """
-Dado que se descartó la reducción de dimensionalidad, se utilizarán todas las variables para
-entrenar el modelo. La variable individuals es la que queremos predecir, es el número
-de individuos que aparecerán en un subplot, en función de las condiciones abióticas.
+Since dimensionality reduction was ruled out, all variables will be used to train the model. 
+The individuals variable is the one we want to predict, it is the number of individuals 
+that will appear in a subplot, depending on the abiotic and biotic conditions.
 
-Para la separación train y test en este caso se utiliza un random split (en otro script se
-utilizan unos años como train y el último año como test).
+For the train and test separation, in this case a random split is used 
+(in another script some years are used as train and the last year as test).
 """
 
-"Estandarizacion de los datos"
+"Data Standarization"
 
 variables_to_ignore = ['individuals']
 selected_features = [element for element in list(individuals_train) if element not in variables_to_ignore]
@@ -165,7 +167,7 @@ std_scaler = StandardScaler()
 std_scaler_model = std_scaler.fit(individuals_model_train)
 individuals_model_train = std_scaler_model.transform(individuals_model_train)
 
-"Division Train Test"
+"Train Test Split"
 
 X = pd.DataFrame(data = individuals_model_train, columns = selected_features)
 y = individuals_train.individuals
@@ -174,7 +176,7 @@ y = individuals_train.individuals
 X_train, X_test, y_train, y_test = train_test_split(X, y, train_size= 0.8)
 print(X_train.columns)
 
-"Algoritmos y Evaluación"
+"Algorithms and Evaluation"
 
 "Linear Regression"
 

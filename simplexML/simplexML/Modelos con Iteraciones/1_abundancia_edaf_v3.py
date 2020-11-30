@@ -5,7 +5,7 @@ This script builds the individuals predictor using weather and soil data
 """
 
 import random
-
+import xlsxwriter
 import pandas as pd
 pd.set_option('display.max_colwidth', -1)
 import numpy as np
@@ -97,7 +97,7 @@ error_values_lr = []
 error_values_rf = []
 error_values_xgb = []
 
-for i in range(0, 20):
+for i in range(0, 100):
     
     print("============================================================================")
     print("============================================================================")
@@ -184,3 +184,19 @@ for i in range(0, 20):
     print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_xgb,rmse_xgb,rse_xgb))
     
     error_values_xgb.append((mse_xgb,rmse_xgb,rse_xgb))
+    
+with xlsxwriter.Workbook('abundancia_edaf.xlsx') as workbook:
+    worksheet = workbook.add_worksheet()
+    worksheet.write_row(0, 0, ['MSE','RMSE','RSE'])
+    for row_num, data in enumerate(error_values_lr):
+        worksheet.write_row(row_num + 1, 0, data)
+    
+    worksheet = workbook.add_worksheet()
+    worksheet.write_row(0, 0, ['MSE','RMSE','RSE'])
+    for row_num, data in enumerate(error_values_rf):
+        worksheet.write_row(row_num + 1, 0, data)
+    
+    worksheet = workbook.add_worksheet()   
+    worksheet.write_row(0, 0, ['MSE','RMSE','RSE'])
+    for row_num, data in enumerate(error_values_xgb):
+        worksheet.write_row(row_num + 1, 0, data)

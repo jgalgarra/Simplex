@@ -1,7 +1,7 @@
 """
-En este script se utiliza información sobre componentes abióticos y componentes bióticos (número de individuos de otras especies
-también presentes en el subplot) para predecir el número
-de individuals que aparecerán en un determinado subplot.
+This script uses information on abiotic and biotic components (number of individuals of other species
+also present in the subplot) to predict the number
+of individuals that will appear in a certain subplot.
 
 """
 import random
@@ -39,12 +39,14 @@ else:
 
 
 """
-Dado que  se va a trabajar con componentes abióticos y bióticos, se cargarán ambos datasets y se realiza un merge de ambos  utilizando el índice como
-columna de unión. Inicialmente en los dataset están presentes columnas que no se van a utilizar para
-la predicción. Estas son: year, month, day, plotID, x, y, subplot. Además, existen columnas duplicadas en ambos datasets, por este motivo se 
-realiza una selección de las variables que se utilizarán para entrenar el modelo.
+Since we are going to work with abiotic and biotic components, both datasets will be 
+loaded and both are merged using the index as a joining column. 
+There are some columns in the datasets that will not be used for prediction tasks. 
+These are: year, month, day, plotID, x, y, subplot. In addition, there are duplicate 
+columns in both datasets. For this reason a selection is made of the variables that 
+will be used to train the model.
 
-Estas variables son las incluidas en col_list
+These variables are the ones included in col_list
 """
 
 print("=================================================")
@@ -74,22 +76,22 @@ individuals_types = individuals_train.dtypes
 
 "Data Wrangling"
 
-"Transformamos la variable species a numérica"
+"Species feature is coded as numeric"
 le = LabelEncoder()
 le.fit(individuals_train[['species']])
 individuals_train[['species']] = le.transform(individuals_train[['species']])
 
 
-"Transformamos la variable present a numérica"
+"Present feature is coded as numeric"
 le = LabelEncoder()
 le.fit(individuals_train[['present']])
 individuals_train[['present']] = le.transform(individuals_train[['present']])
 
 """
-La variable present indica si el número de individuals en ese terreno es mayor que 0 (True) o no.
-Hay un 25% de los datos en los que present es True, es decir, que sólo en el 25% de las filas
-el número de individuals es > 0. Se planteo hacer un SMOTE para balancear el dataset, pero los
-resultados empeoraban, por lo que se descartó.
+Present feature indicates whether the number of individuals in that field is greater than 0 (True) or not.
+There is 25% of the data in which present is True, that is, only in 25% of the rows the
+number of individuals is> 0. It was proposed to do a SMOTE to balance the dataset, 
+but the results worsened, what was discarded.
 
 """
 
@@ -119,10 +121,10 @@ if verbose:
 
 
 """
-También se estudió la reducción de la dimensionalidad a partir de la técnica "del canario". Consiste
-en intruducir una variable de ruido aleatorio para posteriormente analizar qué variables en mi
-dataset aportan más información que ese ruido aleatorio. 
-En este caso, partiendo de un conjunto inicial de 40 variables el algoritmo seleccionaba como más importantes:
+The reduction of dimensionality was also studied using a feature selection technique. 
+It consists of introducing a random noise variable to later analyze which variables 
+in my dataset provide more information than that random noise. In this case, starting 
+from an initial set of 40 variables, the algorithm selected as the most important:
 - 0	PAIN	0.1993726098053827
 - 1	present	0.17199974018884817
 - 2	species	0.15816533700741336
@@ -134,10 +136,12 @@ En este caso, partiendo de un conjunto inicial de 40 variables el algoritmo sele
 - 8	SASO	0.02208463009866737
 - 9	co3	0.016149319067118327
 
-En este subconjunto de variables se recogen componentes abióticos que ya fueron identificados como aquellas variables que aportaban mayor información
-a la predicción de individuos en el modelo de 1_abundancia_edaf. Pero también se destacan ciertas especies. Tras realizar la predicción utilizando
-únicamente estas variables se ha confirmado que no aportan mejores resultados dada la naturaleza del dataset, por lo
-que se descartó la reducción de la dimensionalidad.
+This subset of variables contains abiotic components that were already identified as 
+those variables that contributed more information to the prediction of individuals 
+in the 1_abundancia_edaf model. But certain species also stand out. After making the 
+prediction using only these variables, it has been confirmed that they do not provide 
+better results given the nature of the dataset, so dimensionality reduction was
+ not considered.
 
 """
 
@@ -175,16 +179,16 @@ selected_features = feature_importance.index[selected_features].tolist()
 feature_importance.reset_index(inplace = True)
 
 """
-Dado que se descartó la reducción de dimensionalidad, se utilizarán todas las variables para
-entrenar el modelo. La variable individuals es la que queremos predecir, es el número
-de individuos que aparecerán en un subplot, en función de las condiciones abióticas.
+Since dimensionality reduction was ruled out, all variables will be used to train the model. 
+The individuals variable is the one we want to predict, it is the number of individuals 
+that will appear in a subplot, depending on the abiotic and biotic conditions.
 
-Para la separación train y test en este caso se utiliza un random split (en otro script se
-utilizan unos años como train y el último año como test).
+For the train and test separation, in this case a random split is used 
+(in another script some years are used as train and the last year as test).
 """
 
 
-"Estandarizacion de los datos"
+"Standarization"
 
 variables_to_ignore = ['individuals']
 selected_features = [element for element in list(individuals_train) if element not in variables_to_ignore]
@@ -198,7 +202,7 @@ individuals_model_train = std_scaler_model.transform(individuals_model_train)
 
 
 
-"Division Train Test"
+"Train Test Split"
 
 X = pd.DataFrame(data = individuals_model_train, columns = selected_features)
 y = individuals_train.individuals
@@ -206,7 +210,7 @@ y = individuals_train.individuals
 X_train, X_test, y_train, y_test = train_test_split(X, y, train_size= 0.8)
 print(X_train.columns)
 
-"Algoritmos y Evaluación"
+"Algorithms and Evaluation"
 
 "Linear Regression"
 
