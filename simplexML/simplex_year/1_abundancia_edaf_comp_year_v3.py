@@ -5,7 +5,7 @@ de individuals que aparecerán en un determinado subplot.
 
 """
 import random
-
+import xlsxwriter
 import pandas as pd
 pd.set_option('display.max_colwidth', -1)
 import numpy as np
@@ -21,7 +21,7 @@ from sklearn.model_selection import cross_validate
 from sklearn.metrics import mean_squared_error
 from imblearn.over_sampling import SMOTE
 import sys
-import config as cf
+#import config as cf
 import rse
 import xgboost
 
@@ -50,6 +50,12 @@ Estas variables son las incluidas en col_list
 print("=================================================")
 print("Predictor with environmental and competition data")
 print("=================================================")
+
+
+error_values_lr = []
+error_values_rf = []
+error_values_xgb = []
+
 
 
 environment_train = pd.read_csv('datasets/abund_merged_dataset_onlyenvironment.csv', sep=',')
@@ -186,81 +192,113 @@ utilizan unos años como train y el último año como test).
 
 "Estandarizacion de los datos"
 
-variables_to_ignore = ['individuals','year']
-selected_features = [element for element in list(individuals_train) if element not in variables_to_ignore]
-
-individuals_model_train = individuals_train.loc[individuals_train['year'].isin([2015,2016,2017,2018])][selected_features]
-individuals_model_test = individuals_train.loc[individuals_train['year'] == 2019][selected_features]
-
-std_scaler = StandardScaler()
-
-std_scaler_model = std_scaler.fit(individuals_model_train)
-individuals_model_train = std_scaler_model.transform(individuals_model_train)
-
-std_scaler_model = std_scaler.fit(individuals_model_test)
-individuals_model_test = std_scaler_model.transform(individuals_model_test)
 
 
-"Division Train Test"
+years_datalist= list(range(2015,2020))
+for year_test in years_datalist:
+    
+    print("Testing year ",year_test)
+    print(years_datalist)
+    years_train = [i for i in years_datalist if i != year_test]
+    print("years_train ",years_train)
+    
+    variables_to_ignore = ['individuals','year']
+    selected_features = [element for element in list(individuals_train) if element not in variables_to_ignore]
+    
+    individuals_model_train = individuals_train.loc[individuals_train['year'].isin(years_train)][selected_features]
+    individuals_model_test = individuals_train.loc[individuals_train['year'] == year_test][selected_features]
+    
+    std_scaler = StandardScaler()
+    
+    std_scaler_model = std_scaler.fit(individuals_model_train)
+    individuals_model_train = std_scaler_model.transform(individuals_model_train)
+    
+    std_scaler_model = std_scaler.fit(individuals_model_test)
+    individuals_model_test = std_scaler_model.transform(individuals_model_test)
 
-X_train = pd.DataFrame(data = individuals_model_train, columns = selected_features)
-y_train = individuals_train.loc[individuals_train['year'].isin([2015,2016,2017,2018])]["individuals"]
+    "Division Train Test"
+    
 
-X_test = pd.DataFrame(data = individuals_model_test, columns = selected_features)
-y_test = individuals_train.loc[individuals_train['year'] == 2019]["individuals"]
-
-
-"Algoritmos y Evaluación"
-
-"Linear Regression"
-
-reg = LinearRegression()
-reg.fit(X_train,y_train)
-
-predictions_lr = reg.predict(X_test)
-
-rmse_lr = np.sqrt(metrics.mean_squared_error(y_test, predictions_lr))
-mse_lr = mean_squared_error(y_test,predictions_lr)
-rse_lr = rse.calc_rse(y_test,mse_lr)
-
-print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_lr,rmse_lr,rse_lr))
-
-
-"Random Forest"
-
-n_estimators = [100, 150]
-max_features = ['auto']
-random_grid = {'n_estimators': n_estimators,
-           'max_features': max_features}
-
-seed_value = 4
-random.seed(seed_value)
-
-
-regr = RandomForestRegressor( n_jobs = -1)
-# regr = RandomForestRegressor(random_state= seed_value, n_jobs = -1, n_estimators = 150)
-regr_random = RandomizedSearchCV(estimator = regr, param_distributions = random_grid, cv = 7, verbose=2, n_jobs = -1)
-
-regr_random.fit(X_train,y_train)
-predictions_rf = regr_random.best_estimator_.predict(X_test)
-
-
-rmse_rf = np.sqrt(metrics.mean_squared_error(y_test, predictions_rf))
-mse_rf = mean_squared_error(y_test,predictions_rf)
-rse_rf = rse.calc_rse(y_test,mse_rf)
-
-print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_rf,rmse_rf,rse_rf))
-
-"XGBoost Regressor"
-
-
-xgb = xgboost.XGBRegressor()
-xgb.fit(X_train,y_train)
-
-predictions_xgb = xgb.predict(X_test)
-
-rmse_xgb = np.sqrt(metrics.mean_squared_error(y_test, predictions_xgb))
-mse_xgb = mean_squared_error(y_test,predictions_xgb)
-rse_xgb = rse.calc_rse(y_test,mse_xgb)
-
-print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_xgb,rmse_xgb,rse_xgb))
+    X_train = pd.DataFrame(data = individuals_model_train, columns = selected_features)
+    y_train = individuals_train.loc[individuals_train['year'].isin(years_train)]["individuals"]
+    
+    X_test = pd.DataFrame(data = individuals_model_test, columns = selected_features)
+    y_test = individuals_train.loc[individuals_train['year'] == year_test]["individuals"]
+    
+    
+    "Algoritmos y Evaluación"
+    
+    "Linear Regression"
+    
+    reg = LinearRegression()
+    reg.fit(X_train,y_train)
+    
+    predictions_lr = reg.predict(X_test)
+    
+    rmse_lr = np.sqrt(metrics.mean_squared_error(y_test, predictions_lr))
+    mse_lr = mean_squared_error(y_test,predictions_lr)
+    rse_lr = rse.calc_rse(y_test,mse_lr)
+    
+    print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_lr,rmse_lr,rse_lr))
+    error_values_lr.append((year_test,mse_lr,rmse_lr,rse_lr))
+    
+    
+    "Random Forest"
+    
+    n_estimators = [100, 150]
+    max_features = ['auto']
+    random_grid = {'n_estimators': n_estimators,
+               'max_features': max_features}
+    
+    seed_value = 4
+    random.seed(seed_value)
+    
+    
+    regr = RandomForestRegressor( n_jobs = -1)
+    # regr = RandomForestRegressor(random_state= seed_value, n_jobs = -1, n_estimators = 150)
+    regr_random = RandomizedSearchCV(estimator = regr, param_distributions = random_grid, cv = 7, verbose=2, n_jobs = -1)
+    
+    regr_random.fit(X_train,y_train)
+    predictions_rf = regr_random.best_estimator_.predict(X_test)
+    
+    
+    rmse_rf = np.sqrt(metrics.mean_squared_error(y_test, predictions_rf))
+    mse_rf = mean_squared_error(y_test,predictions_rf)
+    rse_rf = rse.calc_rse(y_test,mse_rf)
+    
+    print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_rf,rmse_rf,rse_rf))
+    error_values_rf.append((year_test,mse_rf,rmse_rf,rse_rf))
+    
+    
+    "XGBoost Regressor"
+    
+    
+    xgb = xgboost.XGBRegressor()
+    xgb.fit(X_train,y_train)
+    
+    predictions_xgb = xgb.predict(X_test)
+    
+    rmse_xgb = np.sqrt(metrics.mean_squared_error(y_test, predictions_xgb))
+    mse_xgb = mean_squared_error(y_test,predictions_xgb)
+    rse_xgb = rse.calc_rse(y_test,mse_xgb)
+    
+    print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_xgb,rmse_xgb,rse_xgb))
+    
+    error_values_xgb.append((year_test,mse_xgb,rmse_xgb,rse_xgb))
+    
+    
+    with xlsxwriter.Workbook('abundancia_edaf_comp_BY_YEAR.xlsx') as workbook:
+        worksheet = workbook.add_worksheet('Linear Regressor')
+        worksheet.write_row(0, 0, ['YEAR','MSE','RMSE','RSE'])
+        for row_num, data in enumerate(error_values_lr):
+            worksheet.write_row(row_num + 1, 0, data)
+        
+        worksheet = workbook.add_worksheet('Random Forest')
+        worksheet.write_row(0, 0, ['YEAR','MSE','RMSE','RSE'])
+        for row_num, data in enumerate(error_values_rf):
+            worksheet.write_row(row_num + 1, 0, data)
+        
+        worksheet = workbook.add_worksheet('XGBoost')   
+        worksheet.write_row(0, 0, ['YEAR','MSE','RMSE','RSE'])
+        for row_num, data in enumerate(error_values_xgb):
+            worksheet.write_row(row_num + 1, 0, data)

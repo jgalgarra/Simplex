@@ -21,7 +21,7 @@ from sklearn.model_selection import cross_validate
 from sklearn.metrics import mean_squared_error
 from imblearn.over_sampling import SMOTE
 import sys
-import config as cf
+#import config as cf
 import rse
 import xgboost
 
@@ -218,7 +218,7 @@ predictions_lr = reg.predict(X_test)
 rmse_lr = np.sqrt(metrics.mean_squared_error(y_test, predictions_lr))
 mse_lr = mean_squared_error(y_test,predictions_lr)
 rse_lr = rse.calc_rse(y_test,mse_lr)
-
+print("Linear Regressor")
 print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_lr,rmse_lr,rse_lr))
 
 
@@ -244,7 +244,7 @@ predictions_rf = regr_random.best_estimator_.predict(X_test)
 rmse_rf = np.sqrt(metrics.mean_squared_error(y_test, predictions_rf))
 mse_rf = mean_squared_error(y_test,predictions_rf)
 rse_rf = rse.calc_rse(y_test,mse_rf)
-
+print("Random Forest")
 print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_rf,rmse_rf,rse_rf))
 
 "XGBoost Regressor"
@@ -258,5 +258,5 @@ predictions_xgb = xgb.predict(X_test)
 rmse_xgb = np.sqrt(metrics.mean_squared_error(y_test, predictions_xgb))
 mse_xgb = mean_squared_error(y_test,predictions_xgb)
 rse_xgb = rse.calc_rse(y_test,mse_xgb)
-
+print("XGBoost Regressor")
 print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_xgb,rmse_xgb,rse_xgb))
