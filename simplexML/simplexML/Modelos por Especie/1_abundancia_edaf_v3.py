@@ -99,6 +99,7 @@ y_test_species = []
 pred_values_lr = []
 pred_values_rf = []
 pred_values_xgb = []
+iteration = []
 
 for i in range(0, 300):
     
@@ -191,6 +192,8 @@ for i in range(0, 300):
     predictions_xgb = xgb.predict(X_test)
     
     pred_values_xgb.extend(predictions_xgb.tolist())
+    
+    iteration.extend((np.ones(len(y_test)) * i).tolist())
 
 with xlsxwriter.Workbook('abundancia_edaf_species.xlsx') as workbook:
     worksheet = workbook.add_worksheet('Linear_Regression')
@@ -201,6 +204,8 @@ with xlsxwriter.Workbook('abundancia_edaf_species.xlsx') as workbook:
         worksheet.write(i + 1,1,e)
     for i,e in enumerate(pred_values_lr):
         worksheet.write(i + 1,2,e)
+    for i,e in enumerate(iteration):
+        worksheet.write(i + 1,3,e)
         
     worksheet = workbook.add_worksheet('Random_Forest')
     worksheet.write_row(0, 0, ['Specie Name','Real Values','Predictions'])
@@ -210,6 +215,8 @@ with xlsxwriter.Workbook('abundancia_edaf_species.xlsx') as workbook:
         worksheet.write(i + 1,1,e)
     for i,e in enumerate(pred_values_rf):
         worksheet.write(i + 1,2,e)
+    for i,e in enumerate(iteration):
+        worksheet.write(i + 1,3,e)
         
     worksheet = workbook.add_worksheet('XGBoost')
     worksheet.write_row(0, 0, ['Specie Name','Real Values','Predictions'])
@@ -219,5 +226,6 @@ with xlsxwriter.Workbook('abundancia_edaf_species.xlsx') as workbook:
         worksheet.write(i + 1,1,e)
     for i,e in enumerate(pred_values_xgb):
         worksheet.write(i + 1,2,e)
-        
+    for i,e in enumerate(iteration):
+        worksheet.write(i + 1,3,e)
         
