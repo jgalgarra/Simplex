@@ -248,15 +248,15 @@ for i in range(0, 100):
     seed_value = 4
     # random.seed(seed_value)
     
-    rf = RandomForestRegressor(random_state= seed_value, n_jobs = -1, n_estimators = 150)
-    rf.fit(X_train_individuals,y_train_individuals)
-    predictions_rf = rf.predict(X_test_individuals)
+    # rf = RandomForestRegressor(random_state= seed_value, n_jobs = -1, n_estimators = 150)
+    # rf.fit(X_train_individuals,y_train_individuals)
+    # predictions_rf = rf.predict(X_test_individuals)
     
-    # rf = RandomForestRegressor(n_jobs = -1)
-    # rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, cv = 7, verbose=2, n_jobs = -1)
+    rf = RandomForestRegressor(n_jobs = -1)
+    rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, cv = 7, verbose=2, n_jobs = -1)
     
-    # rf_random.fit(X_train_individuals,y_train_individuals)
-    # predictions_rf = rf_random.best_estimator_.predict(X_test_individuals)
+    rf_random.fit(X_train_individuals,y_train_individuals)
+    predictions_rf = rf_random.best_estimator_.predict(X_test_individuals)
     
     pred_values_rf.extend(predictions_rf.tolist())
     
