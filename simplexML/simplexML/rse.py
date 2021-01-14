@@ -9,5 +9,5 @@ Función auxiliar para calcular el RSE
 """
 import numpy as np
 
-def calc_rse(valores,mse):
-    return(len(valores)*mse/sum((np.mean(valores)-valores)**2))
+def calc_rse(valores,prediccion):
+    return(sum(valores-prediccion)**2/sum((valores-np.mean(valores))**2))

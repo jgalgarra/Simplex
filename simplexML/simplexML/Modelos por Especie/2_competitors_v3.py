@@ -1,32 +1,16 @@
+
+
 import pandas as pd
 pd.set_option('display.max_colwidth', -1)
 import numpy as np
 import math
-import seaborn as sns
-sns.set(color_codes=True)
 import xlsxwriter
-from sklearn import metrics
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
-from sklearn.metrics import mean_squared_error
 from imblearn.over_sampling import SMOTE
 import xgboost
-
-import sys
-import rse
-
-
-if (len(sys.argv)>2):
-    print("ERROR. Usage: 2_competitors_v3.py [present_percentage]")
-    exit()
-if (len(sys.argv) ==1):
-    smote_yn = 'n'
-else:
-    perc_0s = float(sys.argv[1])
-    smote_0s = round(perc_0s/100,2)
-    smote_yn = 'y'
 
 print("Two-step predictor")
 print("======================")
@@ -71,35 +55,6 @@ species_mapping_inv = {i: l for i, l in enumerate(le.classes_)}
 le = LabelEncoder()
 le.fit(conditions[['present']])
 conditions[['present']] = le.transform(conditions[['present']])
-
-
-
-perc_0s = round(len(np.where(conditions[['present']] == 0)[0])/num_rows * 100,2)
-perc_1s = round(len(np.where(conditions[['present']] == 1)[0])/num_rows * 100,2)
-
-print("===============================================")
-print("Original proportion of cases: "+str(perc_0s)+"% of 0s"+\
-      " and "+str(perc_1s)+"% of 1s")
-print("===============================================")
-
-
-
-if smote_yn == 'y':
-    smote_0s = round(perc_0s/100,2)
-    
-    sm = SMOTE(random_state=42,sampling_strategy = smote_0s)
-    conditions, y_res = sm.fit_resample(conditions[['species', 'individuals',
-        'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-        'k', 'na', 'precip',
-        'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
-        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
-        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']], conditions[['present']])
-    conditions = conditions.join(y_res)
-    
-else:
-    print("===============================================")
-    print("No se aplicará SMOTE")
-    print("===============================================")
 
 
 
@@ -248,15 +203,15 @@ for i in range(0, 100):
     seed_value = 4
     # random.seed(seed_value)
     
-    # rf = RandomForestRegressor(random_state= seed_value, n_jobs = -1, n_estimators = 150)
-    # rf.fit(X_train_individuals,y_train_individuals)
-    # predictions_rf = rf.predict(X_test_individuals)
+    rf = RandomForestRegressor(random_state= seed_value, n_jobs = -1, n_estimators = 150)
+    rf.fit(X_train_individuals,y_train_individuals)
+    predictions_rf = rf.predict(X_test_individuals)
     
-    rf = RandomForestRegressor(n_jobs = -1)
-    rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, cv = 7, verbose=2, n_jobs = -1)
+    # rf = RandomForestRegressor(n_jobs = -1)
+    # rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, cv = 7, verbose=2, n_jobs = -1)
     
-    rf_random.fit(X_train_individuals,y_train_individuals)
-    predictions_rf = rf_random.best_estimator_.predict(X_test_individuals)
+    # rf_random.fit(X_train_individuals,y_train_individuals)
+    # predictions_rf = rf_random.best_estimator_.predict(X_test_individuals)
     
     pred_values_rf.extend(predictions_rf.tolist())
     

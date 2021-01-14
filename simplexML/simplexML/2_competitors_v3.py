@@ -21,8 +21,6 @@ import pandas as pd
 pd.set_option('display.max_colwidth', -1)
 import numpy as np
 import math
-import seaborn as sns
-sns.set(color_codes=True)
 
 from sklearn import metrics
 from sklearn.preprocessing import StandardScaler, LabelEncoder
@@ -32,19 +30,7 @@ from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import mean_squared_error
 from imblearn.over_sampling import SMOTE
 import xgboost
-
-import sys
 import rse
-
-if (len(sys.argv)>2):
-    print("ERROR. Usage: 2_competitors_v3.py [present_percentage]")
-    exit()
-if (len(sys.argv) ==1):
-    smote_yn = 'n'
-else:
-    perc_0s = float(sys.argv[1])
-    smote_0s = round(perc_0s/100,2)
-    smote_yn = 'y'
 
 """
 Since we are going to work with abiotic and biotic components, both datasets will be 
@@ -109,35 +95,6 @@ number of individuals is> 0. It was proposed to do a SMOTE to balance the datase
 but the results worsened, what was discarded.
 
 """
-
-perc_0s = round(len(np.where(conditions[['present']] == 0)[0])/num_rows * 100,2)
-perc_1s = round(len(np.where(conditions[['present']] == 1)[0])/num_rows * 100,2)
-
-print("===============================================")
-print("Original proportion of cases: "+str(perc_0s)+"% of 0s"+\
-      " and "+str(perc_1s)+"% of 1s")
-print("===============================================")
-
-
-if smote_yn == 'y':
-    
-    smote_0s = round(perc_0s/100,2)    
-    sm = SMOTE(random_state=42,sampling_strategy = smote_0s)
-    conditions, y_res = sm.fit_resample(conditions[['species', 'individuals',
-        'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-        'k', 'na', 'precip',
-        'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
-        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
-        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']], conditions[['present']])
-    conditions = conditions.join(y_res)
-    
-else:
-    print("===============================================")
-    print("No se aplicará SMOTE")
-    print("===============================================")
-
-
-
 
 
 "Standarization"
@@ -286,7 +243,7 @@ predictions_lr = reg.predict(X_test_individuals)
 
 rmse_lr = np.sqrt(metrics.mean_squared_error(y_test_individuals, predictions_lr))
 mse_lr = mean_squared_error(y_test_individuals,predictions_lr)
-rse_lr = rse.calc_rse(y_test_individuals,mse_lr)
+rse_lr = rse.calc_rse(y_test_individuals,predictions_lr)
 
 print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_lr,rmse_lr,rse_lr))
 
@@ -307,7 +264,7 @@ predictions_rf = rf_random.best_estimator_.predict(X_test_individuals)
 
 rmse_rf_final = np.sqrt(metrics.mean_squared_error(y_test_individuals, predictions_rf))
 mse_rf_final = mean_squared_error(y_test_individuals,predictions_rf)
-rse_rf_final = rse.calc_rse(predictions_rf,mse_rf_final)
+rse_rf_final = rse.calc_rse(y_test_individuals,predictions_rf)
 print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_rf_final,rmse_rf_final,rse_rf_final))
 
 "XGBoost Regressor"
@@ -319,7 +276,7 @@ predictions_xgb = xgb.predict(X_test_individuals)
 
 rmse_xgb = np.sqrt(metrics.mean_squared_error(y_test_individuals, predictions_xgb))
 mse_xgb = mean_squared_error(y_test_individuals,predictions_xgb)
-rse_xgb = rse.calc_rse(y_test_individuals,mse_xgb)
+rse_xgb = rse.calc_rse(y_test_individuals,predictions_xgb)
 
 print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_xgb,rmse_xgb,rse_xgb))
 

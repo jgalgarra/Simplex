@@ -9,8 +9,6 @@ import random
 import pandas as pd
 pd.set_option('display.max_colwidth', -1)
 import numpy as np
-import seaborn as sns
-sns.set(color_codes=True)
 
 from sklearn import metrics
 from sklearn.preprocessing import StandardScaler, LabelEncoder
@@ -19,23 +17,9 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.model_selection import cross_validate
 from sklearn.metrics import mean_squared_error
-from imblearn.over_sampling import SMOTE
-import sys
-#import config as cf
+
 import rse
 import xgboost
-
-verbose = False
-
-if (len(sys.argv)>2):
-    print("ERROR. Usage: 1_abundancia_edaf_comp_v3.py [present_percentage]")
-    exit()
-if (len(sys.argv) ==1):
-    smote_yn = 'n'
-else:
-    perc_0s = float(sys.argv[1])
-    smote_0s = round(perc_0s/100,2)
-    smote_yn = 'y'
 
 
 """
@@ -92,31 +76,6 @@ el número de individuals es > 0. Se planteo hacer un SMOTE para balancear el da
 resultados empeoraban, por lo que se descartó.
 
 """
-
-perc_0s = round(len(np.where(individuals_train[['present']] == 0)[0])/num_rows * 100,2)
-perc_1s = round(len(np.where(individuals_train[['present']] == 1)[0])/num_rows * 100,2)
-
-
-if smote_yn == 'y':
-    smote_0s = round(perc_0s/100,2)
-    
-    sm = SMOTE(random_state=42,sampling_strategy = smote_0s)
-    individuals_train, y_res = sm.fit_resample(individuals_train[['species', 'individuals',
-        'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-        'k', 'na', 'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
-        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
-        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']], individuals_train[['present']])
-    individuals_train = individuals_train.join(y_res)
-    
-else:
-    print("===============================================")
-    print("No SMOTE balancing")
-    print("===============================================")
-
-if verbose:
-    print(individuals_train.dtypes)
-
-
 
 """
 También se estudió la reducción de la dimensionalidad a partir de la técnica "del canario". Consiste
@@ -217,8 +176,8 @@ predictions_lr = reg.predict(X_test)
 
 rmse_lr = np.sqrt(metrics.mean_squared_error(y_test, predictions_lr))
 mse_lr = mean_squared_error(y_test,predictions_lr)
-rse_lr = rse.calc_rse(y_test,mse_lr)
-print("Linear Regressor")
+rse_lr = rse.calc_rse(y_test,predictions_lr)
+
 print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_lr,rmse_lr,rse_lr))
 
 
@@ -243,8 +202,8 @@ predictions_rf = regr_random.best_estimator_.predict(X_test)
 
 rmse_rf = np.sqrt(metrics.mean_squared_error(y_test, predictions_rf))
 mse_rf = mean_squared_error(y_test,predictions_rf)
-rse_rf = rse.calc_rse(y_test,mse_rf)
-print("Random Forest")
+rse_rf = rse.calc_rse(y_test,predictions_rf)
+
 print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_rf,rmse_rf,rse_rf))
 
 "XGBoost Regressor"
@@ -257,6 +216,6 @@ predictions_xgb = xgb.predict(X_test)
 
 rmse_xgb = np.sqrt(metrics.mean_squared_error(y_test, predictions_xgb))
 mse_xgb = mean_squared_error(y_test,predictions_xgb)
-rse_xgb = rse.calc_rse(y_test,mse_xgb)
-print("XGBoost Regressor")
+rse_xgb = rse.calc_rse(y_test,predictions_xgb)
+
 print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_xgb,rmse_xgb,rse_xgb))

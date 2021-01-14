@@ -9,31 +9,13 @@ import xlsxwriter
 import pandas as pd
 pd.set_option('display.max_colwidth', -1)
 import numpy as np
-import seaborn as sns
-sns.set(color_codes=True)
 
-from sklearn import metrics
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
-from sklearn.metrics import mean_squared_error
-from imblearn.over_sampling import SMOTE
-import sys
-import config as cf
-import rse
-import xgboost
-verbose = False
 
-if (len(sys.argv)>2):
-    print("ERROR. Usage: 1_abundancia_edaf_comp_v3.py [present_percentage]")
-    exit()
-if (len(sys.argv) ==1):
-    smote_yn = 'n'
-else:
-    perc_0s = float(sys.argv[1])
-    smote_0s = round(perc_0s/100,2)
-    smote_yn = 'y'
+import xgboost
 
 print("Predictor with environmental and competition data")
 print("=================================================")
@@ -72,40 +54,6 @@ le = LabelEncoder()
 le.fit(individuals_train[['present']])
 individuals_train[['present']] = le.transform(individuals_train[['present']])
 
-
-
-perc_0s = round(len(np.where(individuals_train[['present']] == 0)[0])/num_rows * 100,2)
-perc_1s = round(len(np.where(individuals_train[['present']] == 1)[0])/num_rows * 100,2)
-
-print("===============================================")
-print("Original proportion of cases: "+str(perc_0s)+"% of 0s"+\
-      " and "+str(perc_1s)+"% of 1s")
-print("===============================================")
-
-
-# print("===============================================")
-# smote_yn = str(input("¿Desea incrementar el %?(y/n): "))
-
-if smote_yn == 'y':
-    # print("Inserte nuevo porcentaje")
-    # perc_0s = float(input("Introduzca porcentaje de 1s: "))
-    smote_0s = round(perc_0s/100,2)
-    
-    sm = SMOTE(random_state=42,sampling_strategy = smote_0s)
-    individuals_train, y_res = sm.fit_resample(individuals_train[['species', 'individuals',
-        'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-        'k', 'na', 'precip', 'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
-        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
-        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']], individuals_train[['present']])
-    individuals_train = individuals_train.join(y_res)
-    
-else:
-    print("===============================================")
-    print("No SMOTE balancing")
-    print("===============================================")
-
-if verbose:
-    print(individuals_train.dtypes)
 
 
 "Parámetros Random Forest"

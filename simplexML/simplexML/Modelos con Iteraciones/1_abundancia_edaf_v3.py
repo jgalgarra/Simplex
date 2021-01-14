@@ -9,9 +9,6 @@ import xlsxwriter
 import pandas as pd
 pd.set_option('display.max_colwidth', -1)
 import numpy as np
-from imblearn.over_sampling import SMOTE
-import seaborn as sns
-sns.set(color_codes=True)
 
 from sklearn import metrics
 from sklearn.preprocessing import StandardScaler, LabelEncoder
@@ -20,21 +17,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 import xgboost
 from sklearn.metrics import mean_squared_error
-
-import sys
-import config as cf
 import rse
-verbose = True
-
-if (len(sys.argv)>2):
-    print("ERROR. Usage: 1_abundancia_edaf.py [present_percentage]")
-    exit()
-if (len(sys.argv) ==1):
-    smote_yn = 'n'
-else:
-    perc_0s = float(sys.argv[1])
-    smote_0s = round(perc_0s/100,2)
-    smote_yn = 'y'
 
 print("Predictor with environmental data only")
 print("=======================================")
@@ -64,24 +47,6 @@ le = LabelEncoder()
 le.fit(individuals_train[['present']])
 individuals_train[['present']] = le.transform(individuals_train[['present']])
 
-perc_0s = round(len(np.where(individuals_train[['present']] == 0)[0])/num_rows * 100,2)
-perc_1s = round(len(np.where(individuals_train[['present']] == 1)[0])/num_rows * 100,2)
-
-
-if smote_yn == 'y':
-    smote_0s = round(perc_0s/100,2)
-    
-    sm = SMOTE(random_state=42,sampling_strategy = smote_0s)
-    individuals_train, y_res = sm.fit_resample(individuals_train[base_list], individuals_train[['present']])
-    individuals_train = individuals_train.join(y_res)
-    
-else:
-    print("===============================================")
-    print("No SMOTE balancing")
-    print("===============================================")
-
-if verbose:
-    print(individuals_train.dtypes)
 
 "Parámetros Random Forest"
 
@@ -143,7 +108,7 @@ for i in range(0, 100):
     
     rmse_lr = np.sqrt(metrics.mean_squared_error(y_test, predictions_lr))
     mse_lr = mean_squared_error(y_test,predictions_lr)
-    rse_lr = rse.calc_rse(y_test,mse_lr)
+    rse_lr = rse.calc_rse(y_test,predictions_lr)
     
     print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_lr,rmse_lr,rse_lr))
     
@@ -164,7 +129,7 @@ for i in range(0, 100):
     
     rmse_rf = np.sqrt(metrics.mean_squared_error(y_test, predictions_rf))    
     mse_rf = mean_squared_error(y_test,predictions_rf)
-    rse_rf = rse.calc_rse(y_test,mse_rf)
+    rse_rf = rse.calc_rse(y_test,predictions_rf)
     
     print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_rf,rmse_rf,rse_rf))
     
@@ -179,7 +144,7 @@ for i in range(0, 100):
     
     rmse_xgb = np.sqrt(metrics.mean_squared_error(y_test, predictions_xgb))
     mse_xgb = mean_squared_error(y_test,predictions_xgb)
-    rse_xgb = rse.calc_rse(y_test,mse_xgb)
+    rse_xgb = rse.calc_rse(y_test,predictions_xgb)
     
     print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_xgb,rmse_xgb,rse_xgb))
     
