@@ -68,11 +68,12 @@ conditions_model_train = std_scaler_model.transform(conditions_model_train)
 
 
 y_test_values = []
-y_test_names = []
+
 pred_values_lr = []
 pred_values_rf = []
 pred_values_xgb = []
 iteration = []
+y_test_names = []
 
 for i in range(0, 100):
     
@@ -121,9 +122,9 @@ for i in range(0, 100):
     
     
     
-    for i in range(0, len(features_to_pred)):
+    for x in range(0, len(features_to_pred)):
     
-        variables_to_ignore = features_to_pred[i]
+        variables_to_ignore = features_to_pred[x]
         print("--------------TARGET "+str(variables_to_ignore))
         
         "Division Train Test"
@@ -203,15 +204,15 @@ for i in range(0, 100):
     seed_value = 4
     # random.seed(seed_value)
     
-    rf = RandomForestRegressor(random_state= seed_value, n_jobs = -1, n_estimators = 150)
-    rf.fit(X_train_individuals,y_train_individuals)
-    predictions_rf = rf.predict(X_test_individuals)
+    # rf = RandomForestRegressor(random_state= seed_value, n_jobs = -1, n_estimators = 150)
+    # rf.fit(X_train_individuals,y_train_individuals)
+    # predictions_rf = rf.predict(X_test_individuals)
     
-    # rf = RandomForestRegressor(n_jobs = -1)
-    # rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, cv = 7, verbose=2, n_jobs = -1)
+    rf = RandomForestRegressor(n_jobs = -1)
+    rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, cv = 7, verbose=2, n_jobs = -1)
     
-    # rf_random.fit(X_train_individuals,y_train_individuals)
-    # predictions_rf = rf_random.best_estimator_.predict(X_test_individuals)
+    rf_random.fit(X_train_individuals,y_train_individuals)
+    predictions_rf = rf_random.best_estimator_.predict(X_test_individuals)
     
     pred_values_rf.extend(predictions_rf.tolist())
     
@@ -225,12 +226,12 @@ for i in range(0, 100):
     
     pred_values_xgb.extend(predictions_xgb.tolist())
     
-    iteration.extend((np.ones(len(y_test)) * i).tolist())
+    iteration.extend((np.ones(len(y_test_individuals)) * i).tolist())
 
 with xlsxwriter.Workbook('2_step_species.xlsx') as workbook:
     worksheet = workbook.add_worksheet('Linear_Regression')
     worksheet.write_row(0, 0, ['Specie Name','Real Values','Predictions'])
-    for i,e in enumerate(y_test_species):
+    for i,e in enumerate(y_test_names):
         worksheet.write(i + 1,0,e)
     for i,e in enumerate(y_test_values):
         worksheet.write(i + 1,1,e)
@@ -241,7 +242,7 @@ with xlsxwriter.Workbook('2_step_species.xlsx') as workbook:
         
     worksheet = workbook.add_worksheet('Random_Forest')
     worksheet.write_row(0, 0, ['Specie Name','Real Values','Predictions'])
-    for i,e in enumerate(y_test_species):
+    for i,e in enumerate(y_test_names):
         worksheet.write(i + 1,0,e)
     for i,e in enumerate(y_test_values):
         worksheet.write(i + 1,1,e)
@@ -252,7 +253,7 @@ with xlsxwriter.Workbook('2_step_species.xlsx') as workbook:
         
     worksheet = workbook.add_worksheet('XGBoost')
     worksheet.write_row(0, 0, ['Specie Name','Real Values','Predictions'])
-    for i,e in enumerate(y_test_species):
+    for i,e in enumerate(y_test_names):
         worksheet.write(i + 1,0,e)
     for i,e in enumerate(y_test_values):
         worksheet.write(i + 1,1,e)
