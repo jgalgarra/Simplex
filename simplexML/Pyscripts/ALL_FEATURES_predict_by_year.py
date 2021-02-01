@@ -18,13 +18,19 @@ from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.model_selection import cross_validate
 from sklearn.metrics import mean_squared_error
 import os
-#from imblearn.over_sampling import SMOTE
 import sys
-#import config as cf
 import rse
 import xgboost
 
 verbose = False
+
+if (len(sys.argv)>2):
+    print("ERROR. Usage: ALL_FEATURES_predict_by_year.py [include_precipitation]")
+    exit()
+include_precip = True
+if (len(sys.argv) >1):
+  if (sys.argv[1]=='n'):
+    include_precip = False
 
 """
 
@@ -54,10 +60,16 @@ num_rows = len(individuals_train)
 num_cols = len(individuals_train.columns)
 print("This dataset has {0} rows and {1} columns".format(num_rows, num_cols))
 
-
-col_list = ['year','species', 'individuals', # 'present',
+if include_precip:
+    col_list = ['year','species', 'individuals', 
        'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
        'k', 'na', 'precip', 'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
+       'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
+       'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
+else:
+    col_list = ['year','species', 'individuals', 
+       'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
+       'k', 'na', 'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
 
@@ -207,8 +219,11 @@ for year_test in years_datalist:
     
     error_values_xgb.append((year_test,mse_xgb,rmse_xgb,rse_xgb))
     
-
-    with xlsxwriter.Workbook(outputdir+'/ALLFEATURES_BY_YEAR.xlsx') as workbook:
+    if include_precip:
+        prstr = ""
+    else:
+        prstr = "_NOPRECIP"
+    with xlsxwriter.Workbook(outputdir+'/ALLFEATURES_BY_YEAR'+prstr+'.xlsx') as workbook:
         worksheet = workbook.add_worksheet('Linear Regressor')
         worksheet.write_row(0, 0, ['YEAR','MSE','RMSE','RSE'])
         for row_num, data in enumerate(error_values_lr):

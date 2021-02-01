@@ -22,6 +22,15 @@ import os
 import xgboost
 import rse
 verbose = False
+import sys
+
+if (len(sys.argv)>2):
+    print("ERROR. Usage: ALL_FEATURES_predictor.py [include_precipitation]")
+    exit()
+include_precip = True
+if (len(sys.argv) >1):
+  if (sys.argv[1]=='n'):
+    include_precip = False
 
 print("Predictor with environmental and competition data")
 print("=================================================")
@@ -37,14 +46,20 @@ num_rows = len(individuals_train)
 num_cols = len(individuals_train.columns)
 print("This dataset has {0} rows and {1} columns".format(num_rows, num_cols))
 
-
-col_list = ['species', 'individuals',
+if include_precip:
+   col_list = ['species', 'individuals',
        'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
        'k', 'na', 'precip', 'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 
        'HOMA', 'LEMA', 'LYTR',
        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
-
+else:
+   col_list = ['species', 'individuals',
+       'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
+       'k', 'na', 'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 
+       'HOMA', 'LEMA', 'LYTR',
+       'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
+       'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
 individuals_train = individuals_train[col_list]
 individuals_types = individuals_train.dtypes
 
@@ -142,7 +157,6 @@ for i in range(0, nexper):
     
     
     regr = RandomForestRegressor(random_state= seed_value, n_jobs = -1)
-    # regr = RandomForestRegressor(random_state= seed_value, n_jobs = -1, n_estimators = 150)
     regr_random = RandomizedSearchCV(estimator = regr, param_distributions = random_grid, cv = 7, n_jobs = -1)
     
     regr_random.fit(X_train,y_train)
@@ -170,8 +184,11 @@ for i in range(0, nexper):
     print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_xgb,rmse_xgb,rse_xgb))
     
     error_values_xgb.append((mse_xgb,rmse_xgb,rse_xgb))
-    
-with xlsxwriter.Workbook(outputdir+'/ALLFEATURES_'+str(nexper)+'.xlsx') as workbook:
+if include_precip:
+    prstr = ""
+else:
+    prstr = "NOPRECIP_"
+with xlsxwriter.Workbook(outputdir+'/ALLFEATURES_'+prstr+str(nexper)+'.xlsx') as workbook:
     worksheet = workbook.add_worksheet('Linear Regressor')
     worksheet.write_row(0, 0, ['MSE','RMSE','RSE'])
     for row_num, data in enumerate(error_values_lr):
