@@ -52,7 +52,7 @@ plothistoerror <- function(datos,texto,metodo,logaritmico="no"){
           axis.title.x = element_text(face="bold", size=12),
           axis.title.y  = element_text(face="bold", size=12) )
   if (logaritmico == "yes")
-    p <- p+scale_x_sqrt(expand = c(0, 0))#  x_log10(expand = c(0, 0))
+    p <- p+scale_x_sqrt(expand = c(0, 0))
   else
     p <- p+ scale_x_continuous(limits = c(c(min(datos$ERROR)),max(datos$ERROR)), expand = c(0, 0))
   return(p)
@@ -129,15 +129,19 @@ for (nexper in lexper)
     if (!dir.exists(odir))
       dir.create(odir)
     ppi <- 300
-    png(paste0(odir,"/Errors_hist",Hoja,"_",nexper,".png"), width=8*ppi, height=8*ppi, res=ppi)
+    nfile <- paste0(odir,"/Errors_hist",gsub(" ","",Hoja),"_",nexper)
+    png(paste0(nfile,".png"), width=15*ppi, height=4*ppi, res=ppi)
     g <- plot_grid(
       phrse, phrmse,
-      ncol = 1,labels=c("A","B"),
+      ncol = 2,labels=c("A","B"),
       label_size = 16
     )
     print(g)
     dev.off()
-
+    
+    tiff(paste0(nfile,".tiff"), units="in", width=15, height=4, res=ppi)
+    print(g)
+    dev.off()
   }
   tdir <- "../tables"
   if (!dir.exists(tdir))

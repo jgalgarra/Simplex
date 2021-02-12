@@ -74,12 +74,16 @@ q <- ggplot(d,aes(x=RMSE,y=Species, color = Species)) +
   tdir <- "../plots"
   if (!dir.exists(tdir))
     dir.create(tdir)
-  png(paste0(tdir,"/Errores_species_",m,".png"), width=10*ppi, height=5*ppi, res=ppi)
+  nfile <- paste0(tdir,"/Errores_species_",m)
+  png(paste0(nfile,".png"), width=10*ppi, height=5*ppi, res=ppi)
   g <- plot_grid(
     q, r,
     ncol = 2,labels=c("A","B"),
     label_size = 16
   )
+  print(g)
+  dev.off()
+  tiff(paste0(nfile,".tiff"), units="in", width=10, height=5, res=ppi)
   print(g)
   dev.off()
 }
