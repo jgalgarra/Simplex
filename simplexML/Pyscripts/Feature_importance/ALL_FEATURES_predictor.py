@@ -101,6 +101,8 @@ selected_features = feature_importance.index[selected_features].tolist()
 
 feature_importance.reset_index(inplace = True)
 
+feature_importance.to_csv("feature_importance_rf.csv")
+
 "Correlation with Target"
 
 correlation_target = individuals_train.drop(columns=['individuals']).corrwith(individuals_train['individuals']).sort_values()
