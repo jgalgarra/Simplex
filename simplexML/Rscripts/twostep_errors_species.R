@@ -1,3 +1,11 @@
+# Compute errors for species using the TWO STEP predictor by species
+# Author: Javier Garcia-Algarra
+# February 2021
+#
+# Results: tables/datos_err_iter.csv            Cumulative errors by iteration
+#          tables/datos_err_onlyspecies.csv     Cumulative errors by species
+#          tables/datos_err_species.csv         Errors by species and interation
+
 library(readxl)
 library(Metrics)
 

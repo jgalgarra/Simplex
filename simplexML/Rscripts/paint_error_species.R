@@ -1,3 +1,10 @@
+# Plot errors by species
+# Author: Javier Garcia-Algarra
+# February 2021
+#
+# Results: plots/Errores_species_[MODEL] (both .png and. tiff) 
+
+
 library(ggplot2)
 library(tidyverse)
 library(scales)

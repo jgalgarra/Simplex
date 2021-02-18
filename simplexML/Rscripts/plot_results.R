@@ -1,3 +1,11 @@
+# Plot results
+# Author: Javier Garcia-Algarra
+# February 2021
+#
+# Results: tables/Model_Errors.csv Errors by model
+#          plots/Errores_species_[MODEL] (both .png and. tiff) 
+#          plots/Errors_hist[MODEL]_N
+
 library(readxl)
 library(ggplot2)
 library(grid)

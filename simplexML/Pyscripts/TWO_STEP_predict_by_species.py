@@ -1,3 +1,18 @@
+"""
+@author: Iciar Civantos
+February 2021
+
+This script builds as many predictors as the number of experiments set by the contents of `experiments.txt`
+First, competitor species are predicted using abiotic features, using Random Forest. Then,
+abiotic features and predicted competitors are joined to train the models: linear regression, Random Forest and XGBoost
+
+Prediction abundances by experiment are stored at results/TWOSTEP_byspecies_N.xlsx where N stands for the number of experiments. 
+
+Invocation: python TWO_STEP_predict_by_species.py
+
+CAUTION: This script is CPU-intensive. Running 100 experiments take hours.
+"""
+
 import pandas as pd
 pd.set_option('display.max_colwidth', -1)
 import numpy as np

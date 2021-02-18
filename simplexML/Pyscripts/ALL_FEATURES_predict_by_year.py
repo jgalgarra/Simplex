@@ -1,5 +1,15 @@
 """
-This script builds predictors splitting data and trainig data by YEAR
+@author: Iciar Civantos-Gomez
+February 2021
+
+This script builds three predictors (Linear regression, Random Forest and XGBoost) splitting data and trainig sets by YEAR.
+
+Invocation: python ALL_FEATURES_predict_by_year 
+Builds the predictor with all feautures, using four years as training set and the other as testing set.
+Prediction errors (MSE, RMSE, RSE)  by model and year are stored at results/ALLFEATURES_BY_YEAR.xlsx
+
+If the invocation is  python ALL_FEATURES_predict_by_year n 
+then precipitation feature is excluded and results are stored at results/ALLFEATURES_BY_YEAR_NOPRECIP.xlsx
 
 """
 import random

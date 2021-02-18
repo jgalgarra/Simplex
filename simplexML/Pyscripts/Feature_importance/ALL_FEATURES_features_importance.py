@@ -101,7 +101,7 @@ selected_features = feature_importance.index[selected_features].tolist()
 
 feature_importance.reset_index(inplace = True)
 
-feature_importance.to_csv("feature_importance_rf.csv")
+feature_importance.to_csv("feature_importance_ALLFEATURES_rf.csv")
 
 "Correlation with Target"
 
@@ -111,8 +111,10 @@ correlation_target
 "Correlation All Features"
 
 correlation_matrix = individuals_train.corr(method='spearman')
+correlation_matrix.to_csv("correlation_ABIOTIC_rf.csv")
 figure_size = (18, 14)
 fig, ax = plt.subplots(figsize=figure_size)
 
 sns.heatmap(correlation_matrix, xticklabels=list(correlation_matrix), yticklabels=list(correlation_matrix),
             annot=True, fmt='.1f', linewidths = 0.5, ax=ax)
+plt.savefig("correlation_ALLFEATURES.png")

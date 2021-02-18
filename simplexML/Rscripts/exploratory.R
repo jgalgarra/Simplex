@@ -1,3 +1,11 @@
+# Exploratory data analysis
+# Author: Javier Garcia-Algarra
+# February 2021
+#
+# Results: tables/abundance_distribution.csv   Abundance mean, median and variance by species
+#          plots/EXPLO_individuals (both .png and. tiff) Abundance boxplots and Taylor's law fitting
+
+
 library(ggplot2)
 library(ggpmisc)
 library(cowplot)
@@ -11,9 +19,6 @@ for (j in 5:ncol(dspecies))
 names(alldata) <- c(names(dabiotic),names(dspecies)[5:ncol(dspecies)])
 
 nz <- alldata[alldata$individuals>0,]
-
-#nz <- alldata
-
 
 # Data frame with nonzero individuals
 nz$meanindividuals <- 0
@@ -54,7 +59,7 @@ taylor_data$meanindividuals <- as.numeric(taylor_data$meanindividuals)
 taylor_data$varindividuals <- as.numeric(taylor_data$varindividuals)
 taylor_data$species <- factor(taylor_data$species, levels=levels(nz$species))
 
-write.csv2(taylor_data,"../tables/abundance_distribution.csv",row.names = FALSE)
+write.csv(taylor_data,"../tables/abundance_distribution.csv",row.names = FALSE)
 
 rlin <- lm(log10(taylor_data$varindividuals)~log10(taylor_data$meanindividuals))
 print("Linear Regression")

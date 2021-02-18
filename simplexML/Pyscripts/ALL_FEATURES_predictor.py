@@ -1,8 +1,18 @@
 """
-Created on Sun Aug  9 11:37:50 2020
 @author: Iciar Civantos
-This script builds the individuals predictor using both competitors
-and environmental (weather and soil) data
+February 2021
+
+This script builds as many predictors as the number of experiments set by the contents of `experiments.txt`
+All features are included to train the models: linear regression, Random Forest and XGBoost
+For each experiment, there is a random training/testing split.
+
+Prediction errors (MSE, RMSE, RSE) by model and experiment are stored as individual sheets at 
+results/ALLFEATURES_N.xlsx where N stands for the number of experiments. 
+
+Invocation: python ALLFEATURES_predictor.py
+If the invocation is python ALLFEATURES_predictor.py n, then precipitation feature is excluded and the results
+file is called ALLFEATURES_NOPRECIP_N.xlsx
+
 """
 import random
 import xlsxwriter
