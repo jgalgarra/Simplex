@@ -101,9 +101,16 @@ correlation_target
 
 correlation_matrix = individuals_train.corr(method='spearman')
 correlation_matrix.to_csv("correlation_ABIOTIC_rf.csv")
-figure_size = (18, 14)
+figure_size = (36, 28)
 fig, ax = plt.subplots(figsize=figure_size)
-
-sns.heatmap(correlation_matrix, xticklabels=list(correlation_matrix), yticklabels=list(correlation_matrix),
-            annot=True, fmt='.1f', linewidths = 0.5, ax=ax)
+sns.set(font_scale=3)
+sns.heatmap(correlation_matrix, cmap=sns.diverging_palette(220, 20, as_cmap=True),
+            xticklabels=list(correlation_matrix), 
+            yticklabels=list(correlation_matrix), alpha=0.7,
+            annot=True, fmt='.2f', linewidths = 0.5, ax=ax)
+ax.figure.axes[-1].set_ylabel('Spearman correlation %', size=50)
+ax.set_yticklabels(ax.get_ymajorticklabels(), fontsize = 50)
+ax.set_xticklabels(ax.get_xmajorticklabels(), fontsize = 50)
+plt.xticks(rotation=90)
+plt.yticks(rotation=0)
 plt.savefig("correlation_ABIOTIC.png")
