@@ -111,7 +111,7 @@ correlation_target
 "Correlation All Features"
 
 correlation_matrix = individuals_train.corr(method='spearman')
-correlation_matrix.to_csv("correlation_ABIOTIC_rf.csv")
+correlation_matrix.to_csv("correlation_ALLFEATURES_rf.csv")
 figure_size = (36, 28)
 fig, ax = plt.subplots(figsize=figure_size)
 sns.set(font_scale=3)
