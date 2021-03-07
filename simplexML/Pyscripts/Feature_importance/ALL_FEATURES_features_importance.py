@@ -112,7 +112,7 @@ correlation_target
 
 correlation_matrix = individuals_train.corr(method='spearman')
 correlation_matrix.to_csv("correlation_ALLFEATURES_rf.csv")
-figure_size = (36, 28)
+figure_size = (72, 56)
 fig, ax = plt.subplots(figsize=figure_size)
 sns.set(font_scale=3)
 sns.heatmap(correlation_matrix, cmap=sns.diverging_palette(220, 20, as_cmap=True),
