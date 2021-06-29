@@ -42,9 +42,9 @@ import rse
 print("Two-step predictor")
 print("======================")
 
-environment_train = pd.read_csv('../../datasets/abund_merged_dataset_onlyenvironment.csv', sep=',')
-competitors_train = pd.read_csv('../../datasets/abund_merged_dataset_onlycompetitors.csv', sep=',')
-coord_plot = pd.read_csv('../../datasets/coord_plot.csv', sep=';')
+environment_train = pd.read_csv('../datasets/abund_merged_dataset_onlyenvironment.csv', sep=',')
+competitors_train = pd.read_csv('../datasets/abund_merged_dataset_onlycompetitors.csv', sep=',')
+coord_plot = pd.read_csv('../datasets/coord_plot.csv', sep=';')
 
 conditions = environment_train.merge(competitors_train)
 
@@ -58,14 +58,14 @@ print("This dataset has {0} rows and {1} columns".format(num_rows, num_cols))
 
 
 col_list = ['species', 'individuals',
-       'ph', 'salinity', 'cl', 'co3', 'c', 'p', 'ca', 'mg',
+       'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
        'k', 'na', 'precip', 'present', 'x', 'y',
        'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
 
 train_list = ['species', 'individuals', 
-       'ph', 'salinity', 'cl', 'co3', 'c', 'p', 'ca', 'mg',
+       'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
        'k', 'na', 'precip', 'present','x','y']
 
 conditions = conditions[col_list]
@@ -109,7 +109,7 @@ error_values_lr = []
 error_values_rf = []
 error_values_xgb = []
 
-outputdir = '../../results'
+outputdir = '../results'
 if not os.path.exists(outputdir):
   os.makedirs(outputdir)
 
@@ -118,7 +118,6 @@ with open('experiments.txt', 'r') as g:
   
 seed_value = 4
 random.seed(seed_value)
-nexper = 25
   
 print("nexper",nexper)
 for i in range(0, nexper):
@@ -208,7 +207,7 @@ for i in range(0, nexper):
         
     sm = SMOTE(random_state=42)
     data, y_res = sm.fit_resample(data[['species', 'individuals',
-        'ph', 'salinity', 'cl', 'co3', 'c', 'p', 'ca', 'mg',
+        'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
         'k', 'na', 'precip', 'x', 'y', 
         'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
         'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
