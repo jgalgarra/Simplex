@@ -1,0 +1,38 @@
+library(dplyr)
+library(spdep)
+
+environment_train <- read.csv("../datasets/abund_merged_dataset_onlyenvironment.csv")
+years <- unique(environment_train[c("year")])
+species <- unique(environment_train[c("species")])
+rownames(species) <- 1:23
+
+moran_list <- list()
+
+for (y in 1:5){
+  for (s in 1:23){
+    
+    year_i <- years[y,1]
+    specie_i <- species[s,1]
+    
+    print(paste("YEAR: ",year_i," and SPECIE: ",specie_i))
+    
+    year_esp <- filter(environment_train, year == year_i & species == specie_i)
+    
+    distancias.matriz <- as.matrix(dist(cbind(year_esp$x, year_esp$y)))
+    
+    #now, I make the inverse matrix and the diagonal equal to 0
+    plots.dists.inv <- 1/distancias.matriz
+    diag(plots.dists.inv) <- 0
+    
+    plots.dists.inv[plots.dists.inv == Inf] <- 10000
+    
+    matrix_w <- mat2listw(plots.dists.inv)
+    
+    if (any(year_esp$individuals != 0)){
+      print(moran.test(year_esp$individuals,matrix_w))
+    }
+  }
+}
+
+
+
