@@ -1,12 +1,14 @@
 library(dplyr)
 library(spdep)
+library(writexl)
 
 environment_train <- read.csv("../datasets/abund_merged_dataset_onlyenvironment.csv")
 years <- unique(environment_train[c("year")])
 species <- unique(environment_train[c("species")])
 rownames(species) <- 1:23
 
-moran_list <- list()
+moran_list <- c()
+year_esp_list <- c()
 
 for (y in 1:5){
   for (s in 1:23){
@@ -29,10 +31,19 @@ for (y in 1:5){
     matrix_w <- mat2listw(plots.dists.inv)
     
     if (any(year_esp$individuals != 0)){
-      print(moran.test(year_esp$individuals,matrix_w))
+      
+      year_esp_list <- c(year_esp_list, paste(year_i,'_',specie_i))
+      
+      moran_stat <- moran.test(year_esp$individuals,matrix_w)
+      moran_list <- c(moran_list, moran_stat$estimate[1])
+      print(moran_stat)
     }
   }
 }
+
+i_moran_species_year <- data.frame(year_esp_list, moran_list)
+write_xlsx(i_moran_species_year,"../results/spatial_autocorrelation_year_esp.xlsx")
+
 
 
 
