@@ -50,7 +50,6 @@ conditions = environment_train.merge(competitors_train)
 
 coord_plot["plotID"] = coord_plot["Plot"].apply(str) + coord_plot["Subplot"].apply(lambda x: '_'+x)
 conditions = conditions.merge(coord_plot.drop(columns = ["Plot","Subplot"]), on = "plotID", how = "inner")
- 
 
 num_rows = len(conditions)
 num_cols = len(conditions.columns)
@@ -120,7 +119,7 @@ seed_value = 4
 random.seed(seed_value)
   
 print("nexper",nexper)
-for i in range(0, nexper):
+for i in range(0, 100):
     
     print("============================================================================")
     print("============================================================================")
@@ -145,15 +144,7 @@ for i in range(0, nexper):
     X[['present']] = conditions[['present']]
     y = conditions[features_to_pred]
     
-    X_train_species, X_test_species, y_train_species, y_test_species = train_test_split(X, y, train_size= 0.8)
-    "Parámetros Random Forest"
-    
-    n_estimators = [100,150]
-    max_features = ['auto']
-    #Grid Search
-    random_grid = {'n_estimators': n_estimators,
-               'max_features': max_features}
-    
+  
     
     
     for i in range(0, len(features_to_pred)):
@@ -163,31 +154,25 @@ for i in range(0, nexper):
         
         "Division Train Test"
         
+        pred_compe_rf = np.array([])
+        index_compe_test = []
         
-        X_train = X_train_species
-        y_train = y_train_species[variables_to_ignore]
+        kfold = vd.BlockKFold(spacing = 0.5, n_splits=4, shuffle=True)    
+        rf = RandomForestRegressor(random_state= seed_value, n_jobs = -1)
         
-        X_test = X_test_species
-        y_test = y_test_species[variables_to_ignore]
-        
+        for train, test in kfold.split(np.array(X[['x','y']])):
             
-        "Algoritmos y Evaluación"
+            index_compe_test = np.concatenate((index_compe_test, test), axis=None)
+            
+            rf.fit(X.iloc[train],y.iloc[train][variables_to_ignore])
+            predictions_rf = rf.predict(X.iloc[test])
+            pred_compe_rf = np.concatenate((pred_compe_rf, predictions_rf), axis=None)
+
+        results_compe_rf = pd.concat([pd.Series(index_compe_test), pd.Series(pred_compe_rf)], axis = 1)
+        results_compe_rf.columns = ['test_index', 'prediction']
+        avg_results_compe_rf = results_compe_rf.groupby('test_index').median()
         
-        "Random Forest"
-        
-        rf = RandomForestRegressor(n_jobs = -1)
-        rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, cv = 7, verbose=2, n_jobs = -1)
-        
-        rf_random.fit(X_train,y_train)
-        predictions_rf = rf_random.best_estimator_.predict(X_test)
-        
-        y_pred[variables_to_ignore] = predictions_rf
-        rmse_rf[variables_to_ignore] = np.sqrt(metrics.mean_squared_error(y_test, predictions_rf))
-        mse_rf = mean_squared_error(y_test,predictions_rf)
-        rse_rf = rse.calc_rse(y_test,predictions_rf)
-        #print("RMSE: "+str(rmse_rf[variables_to_ignore]))
-        print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_rf,rmse_rf[variables_to_ignore],rse_rf))
-    
+        y_pred[variables_to_ignore] = np.array(avg_results_compe_rf['prediction'])
     
     
     
@@ -196,12 +181,11 @@ for i in range(0, nexper):
     features_to_pred = ['individuals']
     selected_features = [element for element in col_list if element not in features_to_pred]
     
-    new_X = X_test_species.reset_index().drop(['index'], axis = 1)
     y_predictions = pd.DataFrame.from_dict(y_pred)
     y_predictions = y_predictions.applymap(lambda x: math.floor(x))
-    X_individuals = new_X.join(y_predictions)[selected_features]
+    X_individuals = X.join(y_predictions)[selected_features]
     
-    y_individuals = conditions[features_to_pred].iloc[y_test_species.index].reset_index().drop(['index'], axis = 1)
+    y_individuals = conditions[features_to_pred]
     
     data = X_individuals.join(y_individuals)
         
