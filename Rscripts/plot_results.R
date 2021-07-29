@@ -13,6 +13,11 @@ library(gridExtra)
 library(tidyverse)
 library(cowplot)
 
+lHojas <- c("Linear Regressor","Random Forest","XGBoost")
+lexper <- c(100)
+pathresults = "../results"
+suffix_method <- "_blocked"
+
 ploterror <- function(datos,texto){
   p <- ggplot() + geom_density(aes(x= ERROR, color = Set, fill = Set),  alpha = .1,
                                data=datos, position = "identity", adjust= 1)+
@@ -78,42 +83,47 @@ AddResumen <- function(sumario,nexper,modelo,metodo,index){
   return(resumen_errores_int)
 }
 
-lHojas <- c("Linear Regressor","Random Forest","XGBoost")
-#lexper <- c(100,300)
-lexper <- c(100)
 resumen_errores <- data.frame("nexper"=c(),"model"=c(),"Method"=c(),"Index"=c(),
                               "Min"=c(),"Q1"=c(),"Median"=c(),"Mean"=c(),"Q3"=c(),"Max"=c())
-
-pathresults = "../results"
 for (nexper in lexper)
 {
-  allerrors <- data.frame("MSE"=c(),  "RMSE"=c(), "RSE"=c(),  "Set"=c(), 
+  allerrors <- data.frame("MSE"=c(),  "RMSE"=c(), "RSE"=c(), "R2"=c(), "Set"=c(), 
                           "Metodo"=c(), "Exper" = c())
   for (Hoja in lHojas)
   {
     abundancia_edaf <- read_excel(paste0(pathresults,"/ABIOTIC_",nexper,".xlsx"),
                                   sheet = Hoja)
+    abundancia_edaf$R2 <- 1-abundancia_edaf$RSE
     abundancia_edaf$Set <- "ABIOTIC"
     resumen_errores <- rbind(resumen_errores,AddResumen(summary(abundancia_edaf$RSE),
                                                         nexper,"ABIOTIC",Hoja,"RSE"))
     resumen_errores <- rbind(resumen_errores,AddResumen(summary(abundancia_edaf$RMSE),
                                                         nexper,"ABIOTIC",Hoja,"RMSE"))
+    resumen_errores <- rbind(resumen_errores,AddResumen(summary(abundancia_edaf$R2),
+                                                        nexper,"ABIOTIC",Hoja,"R2"))
     
-    twostep <- read_excel(paste0(pathresults,"/TWOSTEP_",nexper,".xlsx"),
+    
+    twostep <- read_excel(paste0(pathresults,"/TWOSTEP_",nexper,suffix_method,".xlsx"),
                               sheet = Hoja)
     twostep$Set <- "TWOSTEP"
+    twostep$R2 <- 1-twostep$RSE
     resumen_errores <- rbind(resumen_errores,AddResumen(summary(twostep$RSE),
                                                         nexper,"TWOSTEP",Hoja,"RSE"))
     resumen_errores <- rbind(resumen_errores,AddResumen(summary(twostep$RMSE),
                                                         nexper,"TWOSTEP",Hoja,"RMSE"))
+    resumen_errores <- rbind(resumen_errores,AddResumen(summary(twostep$R2),
+                                                        nexper,"TWOSTEP",Hoja,"R2"))
     
     abundancia_edaf_comp <- read_excel(paste0(pathresults,"/ALLFEATURES_",nexper,".xlsx"),
                                        sheet = Hoja)
     abundancia_edaf_comp$Set <- "ALLFEATURES"
+    abundancia_edaf_comp$R2 <- 1-abundancia_edaf_comp$RSE
     resumen_errores <- rbind(resumen_errores,AddResumen(summary(abundancia_edaf_comp$RSE),
                                                         nexper,"ALLFEATURES",Hoja,"RSE"))
     resumen_errores <- rbind(resumen_errores,AddResumen(summary(abundancia_edaf_comp$RMSE),
                                                         nexper,"ALLFEATURES",Hoja,"RMSE"))
+    resumen_errores <- rbind(resumen_errores,AddResumen(summary(abundancia_edaf_comp$R2),
+                                                        nexper,"ALLFEATURES",Hoja,"R2"))
     
     
     
@@ -124,9 +134,19 @@ for (nexper in lexper)
     print(paste("Method",Hoja))
     print("RSE")
     print(summary(datos$RSE))
-
     prse <- ploterror(datoserr,"RSE")
     phrse <- plothistoerror(datoserr,"RSE",Hoja,logaritmico="yes")   
+    
+    
+    datoserr$ERROR <- datos$R2
+    print(paste("Method",Hoja))
+    print("R2")
+    print(summary(datos$R2))
+    pr2 <- ploterror(datoserr,"R2")
+    phr2 <- plothistoerror(datoserr,"R2",Hoja,logaritmico="yes")   
+    
+    
+    
     datoserr$ERROR <- datos$RMSE
     prmse <- ploterror(datoserr,"RMSE")
     phrmse <- plothistoerror(datoserr,"RMSE",Hoja)
@@ -140,7 +160,8 @@ for (nexper in lexper)
     nfile <- paste0(odir,"/Errors_hist",gsub(" ","",Hoja),"_",nexper)
     png(paste0(nfile,".png"), width=15*ppi, height=4*ppi, res=ppi)
     g <- plot_grid(
-      phrse, phrmse,
+      #phrse, phrmse,
+      phr2, phrmse,
       ncol = 2,labels=c("A","B"),
       label_size = 16
     )
