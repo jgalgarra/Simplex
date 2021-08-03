@@ -21,7 +21,6 @@ pd.set_option('display.max_colwidth', -1)
 import numpy as np
 import seaborn as sns
 sns.set(color_codes=True)
-
 from sklearn import metrics
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.linear_model import LinearRegression
@@ -65,15 +64,15 @@ print("This dataset has {0} rows and {1} columns".format(num_rows, num_cols))
 
 if include_precip:
    col_list = ['species', 'individuals',
-       'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-       'k', 'na', 'precip', 'x', 'y', 'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 
+       'ph', 'salinity', 'co3', 'c', 'p', 'ca', 'mg',
+       'precip', 'x', 'y', 'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 
        'HOMA', 'LEMA', 'LYTR',
        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
 else:
    col_list = ['species', 'individuals',
-       'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-       'k', 'na', 'x', 'y',  'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 
+       'ph', 'salinity', 'co3', 'c', 'p', 'ca', 'mg',
+       'x', 'y',  'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 
        'HOMA', 'LEMA', 'LYTR',
        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
@@ -102,7 +101,7 @@ print("nexper",nexper)
 seed_value = 4
 random.seed(seed_value)
 
-"Estandarizacion de los datos"
+"Data normalization"
 
 variables_to_ignore = ['individuals']
 selected_features = [element for element in list(individuals_train) if element not in variables_to_ignore]
@@ -124,7 +123,7 @@ error_values_lr = []
 error_values_rf = []
 error_values_xgb = []
 
-for i in range(0, 100):
+for i in range(0, nexper):
     
     print("============================================================================")
     print("============================================================================")
@@ -208,18 +207,18 @@ for i in range(0, 100):
     print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_xgb,rmse_xgb,rse_xgb))
 
 
-with xlsxwriter.Workbook('../results/ALL_FEATURES.xlsx') as workbook:
-    worksheet = workbook.add_worksheet()
+with xlsxwriter.Workbook('../results/ALLFEATURES_'+str(nexper)+'.xlsx') as workbook:
+    worksheet = workbook.add_worksheet('Linear Regressor')
     worksheet.write_row(0, 0, ['MSE','RMSE','RSE'])
     for row_num, data in enumerate(error_values_lr):
         worksheet.write_row(row_num + 1, 0, data)
     
-    worksheet = workbook.add_worksheet()
+    worksheet = workbook.add_worksheet('Random Forest')
     worksheet.write_row(0, 0, ['MSE','RMSE','RSE'])
     for row_num, data in enumerate(error_values_rf):
         worksheet.write_row(row_num + 1, 0, data)
     
-    worksheet = workbook.add_worksheet()   
+    worksheet = workbook.add_worksheet('XGBoost') 
     worksheet.write_row(0, 0, ['MSE','RMSE','RSE'])
     for row_num, data in enumerate(error_values_xgb):
         worksheet.write_row(row_num + 1, 0, data)

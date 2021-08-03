@@ -71,15 +71,17 @@ num_cols = len(individuals_train.columns)
 print("This dataset has {0} rows and {1} columns".format(num_rows, num_cols))
 
 if include_precip:
-    col_list = ['year','species', 'individuals', 
-       'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-       'k', 'na', 'precip', 'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
+    col_list = ['year','species', 'individuals',
+       'ph', 'salinity', 'co3', 'c', 'p', 'ca', 'mg','precip',
+       'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 
+       'HOMA', 'LEMA', 'LYTR',
        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
 else:
-    col_list = ['year','species', 'individuals', 
-       'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-       'k', 'na', 'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
+    col_list = ['year','species', 'individuals',
+       'ph', 'salinity', 'co3', 'c', 'p', 'ca', 'mg',
+       'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 
+       'HOMA', 'LEMA', 'LYTR',
        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
 
@@ -199,7 +201,7 @@ for year_test in years_datalist:
     regr = RandomForestRegressor( n_jobs = -1)
     regr_random = RandomizedSearchCV(estimator = regr, 
                                      param_distributions = random_grid, 
-                                     cv = 7, verbose=2, n_jobs = -1)
+                                     cv = 4, verbose=2, n_jobs = -1)
     
     regr_random.fit(X_train,y_train)
     predictions_rf = regr_random.best_estimator_.predict(X_test)

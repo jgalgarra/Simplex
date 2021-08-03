@@ -14,9 +14,10 @@ library(tidyverse)
 library(cowplot)
 
 lHojas <- c("Linear Regressor","Random Forest","XGBoost")
+# Vector with the number of experiments of each run
 lexper <- c(100)
 pathresults = "../results"
-suffix_method <- "_blocked"
+suffix_method <- "" #"_blocked"
 
 ploterror <- function(datos,texto){
   p <- ggplot() + geom_density(aes(x= ERROR, color = Set, fill = Set),  alpha = .1,
@@ -38,7 +39,7 @@ ploterror <- function(datos,texto){
 
 }
 
-plothistoerror <- function(datos,texto,metodo,logaritmico="no"){
+plothistoerror <- function(datos,texto,metodo,quadratic="no"){
   med_df <- datos %>%
     group_by(Set) %>%
     summarize(median=median(ERROR))
@@ -64,7 +65,7 @@ plothistoerror <- function(datos,texto,metodo,logaritmico="no"){
           axis.text = element_text(face="bold", size=11),
           axis.title.x = element_text(face="bold", size=12),
           axis.title.y  = element_text(face="bold", size=12) )
-  if (logaritmico == "yes")
+  if (quadratic == "yes")
     p <- p+scale_x_sqrt(expand = c(0, 0))
   else
     p <- p+ scale_x_continuous(limits = c(c(min(datos$ERROR)),max(datos$ERROR)), expand = c(0, 0))
@@ -135,7 +136,7 @@ for (nexper in lexper)
     print("RSE")
     print(summary(datos$RSE))
     prse <- ploterror(datoserr,"RSE")
-    phrse <- plothistoerror(datoserr,"RSE",Hoja,logaritmico="yes")   
+    phrse <- plothistoerror(datoserr,"RSE",Hoja,quadratic="yes")   
     
     
     datoserr$ERROR <- datos$R2
@@ -143,7 +144,7 @@ for (nexper in lexper)
     print("R2")
     print(summary(datos$R2))
     pr2 <- ploterror(datoserr,"R2")
-    phr2 <- plothistoerror(datoserr,"R2",Hoja,logaritmico="yes")   
+    phr2 <- plothistoerror(datoserr,"R2",Hoja,quadratic="yes")   
     
     
     

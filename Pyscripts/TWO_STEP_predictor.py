@@ -35,7 +35,6 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import r2_score
 from imblearn.over_sampling import SMOTE
 import xgboost
-
 import os
 import rse
 
@@ -56,17 +55,16 @@ num_rows = len(conditions)
 num_cols = len(conditions.columns)
 print("This dataset has {0} rows and {1} columns".format(num_rows, num_cols))
 
-
 col_list = ['species', 'individuals',
-       'ph', 'salinity', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-       'k', 'precip', 'present', 'x', 'y',
-       'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
-       'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
-       'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
+        'ph', 'salinity', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
+        'k', 'precip', 'present', 'x', 'y',
+        'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
+        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
+        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
 
 train_list = ['species', 'individuals', 
-       'ph', 'salinity', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-       'k',  'precip', 'present','x','y']
+        'ph', 'salinity', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
+        'k',  'precip', 'x','y']
 
 conditions = conditions[col_list]
 
@@ -188,17 +186,7 @@ for i in range(0, nexper):
     
     y_individuals = conditions[features_to_pred]
     
-    data = X_individuals.join(y_individuals)
-        
-    sm = SMOTE(random_state=42)
-    data, y_res = sm.fit_resample(data[['species', 'individuals',
-        'ph', 'salinity',  'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-        'k',  'precip', 'x', 'y', 
-        'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
-        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
-        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']], data[['present']])
-    data = data.join(y_res)
-    
+    data = X_individuals.join(y_individuals)  
     
     X_ind = data[selected_features]
     y_ind = data['individuals']

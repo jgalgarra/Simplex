@@ -60,12 +60,12 @@ num_cols = len(individuals_train.columns)
 print("This dataset has {0} rows and {1} columns".format(num_rows, num_cols))
 
 if include_precip:
-   base_list = ['species','individuals','ph','salinity','precip',
-                'co3','c','mo','n','cn','p','ca','mg','k','x','y']
+   base_list = ['species','individuals','salinity','precip',
+                'co3','c','p','ca','x','y']
 
 else:
-   base_list = ['species','individuals','ph','salinity',
-                'co3','c','mo','n','cn','p','ca','mg','k','x','y']
+   base_list = ['species','individuals','salinity',
+                'co3','c','p','ca','x','y']
 col_list = base_list.copy()
 individuals_train = individuals_train[col_list]
 individuals_types = individuals_train.dtypes
@@ -203,18 +203,18 @@ for i in range(0, nexper):
     print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_xgb,rmse_xgb,rse_xgb))
     
     
-with xlsxwriter.Workbook('../results/ABIOTIC.xlsx') as workbook:
-    worksheet = workbook.add_worksheet()
+with xlsxwriter.Workbook('../results/ABIOTIC_'+str(nexper)+'.xlsx') as workbook:
+    worksheet = workbook.add_worksheet('Linear Regressor')
     worksheet.write_row(0, 0, ['MSE','RMSE','RSE'])
     for row_num, data in enumerate(error_values_lr):
         worksheet.write_row(row_num + 1, 0, data)
     
-    worksheet = workbook.add_worksheet()
+    worksheet = workbook.add_worksheet('Random Forest')
     worksheet.write_row(0, 0, ['MSE','RMSE','RSE'])
     for row_num, data in enumerate(error_values_rf):
         worksheet.write_row(row_num + 1, 0, data)
     
-    worksheet = workbook.add_worksheet()   
+    worksheet = workbook.add_worksheet('XGBoost') 
     worksheet.write_row(0, 0, ['MSE','RMSE','RSE'])
     for row_num, data in enumerate(error_values_xgb):
         worksheet.write_row(row_num + 1, 0, data)
