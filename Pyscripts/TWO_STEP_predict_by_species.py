@@ -136,7 +136,7 @@ for i in range(0, nexper):
     
     "Parámetros Random Forest"
     
-    n_estimators = [100,150]
+    n_estimators = [100]
     max_features = ['auto']
     #Grid Search
     random_grid = {'n_estimators': n_estimators,
