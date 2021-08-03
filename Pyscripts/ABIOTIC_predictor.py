@@ -188,12 +188,11 @@ for i in range(0, nexper):
     error_values_rf.append((mse_rf,rmse_rf,rse_rf))
     print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_rf,rmse_rf,rse_rf))
     
-    df1 = pd.DataFrame({"real":y,
-                    "prediction":avg_results_rf.prediction})
-
-    df1.to_csv('abiopred.csv',index=False)
     
-    
+    if include_precip:   # Wirte individual predictions only in precip is included
+        df1 = pd.DataFrame({"real":y,
+                        "prediction":avg_results_rf.prediction})    
+        df1.to_csv('../results/abiopred.csv',index=False)
     
     rmse_xgb = np.sqrt(metrics.mean_squared_error(y, avg_results_xgb))    
     mse_xgb = mean_squared_error(y,avg_results_xgb)
@@ -202,8 +201,12 @@ for i in range(0, nexper):
     error_values_xgb.append((mse_xgb,rmse_xgb,rse_xgb))
     print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_xgb,rmse_xgb,rse_xgb))
     
-    
-with xlsxwriter.Workbook('../results/ABIOTIC_'+str(nexper)+'.xlsx') as workbook:
+if include_precip:
+    prstr = ""
+else:
+    prstr = "_NOPRECIP"
+        
+with xlsxwriter.Workbook('../results/ABIOTIC_'+str(nexper)+prstr+'.xlsx') as workbook:
     worksheet = workbook.add_worksheet('Linear Regressor')
     worksheet.write_row(0, 0, ['MSE','RMSE','RSE'])
     for row_num, data in enumerate(error_values_lr):

@@ -12,9 +12,10 @@ library(grid)
 library(gridExtra)
 library(tidyverse)
 library(cowplot)
+library(latex2exp)
 
 lHojas <- c("Linear Regressor","Random Forest","XGBoost")
-# Vector with the number of experiments of each run
+# Vector with the numbers of experiments of each run
 lexper <- c(100)
 pathresults = "../results"
 suffix_method <- "" #"_blocked"
@@ -22,7 +23,7 @@ suffix_method <- "" #"_blocked"
 ploterror <- function(datos,texto){
   p <- ggplot() + geom_density(aes(x= ERROR, color = Set, fill = Set),  alpha = .1,
                                data=datos, position = "identity", adjust= 1)+
-    xlab(texto)+
+    xlab(TeX(texto))+
     ylab("Density\n") + scale_fill_manual(values=c("blue","red","green4")) +
     scale_color_manual(values=c("blue","red","green4"))+ theme_bw()+
     theme(panel.border = element_blank(),
@@ -34,18 +35,18 @@ ploterror <- function(datos,texto){
           axis.line = element_line(colour = "black"),
           plot.title = element_text(lineheight=1.5, face="bold"),
           axis.text = element_text(face="bold", size=12),
-          axis.title.x = element_text(face="bold", size=12),
-          axis.title.y  = element_text(face="bold", size=12) )
+          axis.title.x = element_text(face="bold", size=13),
+          axis.title.y  = element_text(face="bold", size=13) )
 
 }
 
-plothistoerror <- function(datos,texto,metodo,quadratic="no"){
+plothistoerror <- function(datos,texto,metodo,logaritmico="no"){
   med_df <- datos %>%
     group_by(Set) %>%
     summarize(median=median(ERROR))
   p <- ggplot(datos,aes(x=ERROR)) + geom_histogram(aes(y=..density.. , fill = Set),  alpha = .2,
                                  data=datos, position="identity", bins =40)+ 
-    xlab(texto)+ylab("Density\n")+    scale_y_continuous(expand=c(0,0))+
+    xlab(TeX(texto))+ylab("Density\n")+    scale_y_continuous(expand=c(0,0))+
     geom_vline(data = med_df, aes(xintercept = median, 
                                   color = Set), size=0.3,alpha=0.8)+ 
     
@@ -63,12 +64,12 @@ plothistoerror <- function(datos,texto,metodo,quadratic="no"){
           axis.line = element_line(colour = "black"),
           plot.title = element_text(lineheight=1.5, face="bold"),
           axis.text = element_text(face="bold", size=11),
-          axis.title.x = element_text(face="bold", size=12),
-          axis.title.y  = element_text(face="bold", size=12) )
-  if (quadratic == "yes")
+          axis.title.x = element_text(face="bold", size=13),
+          axis.title.y  = element_text(face="bold", size=13) )
+  if (logaritmico == "yes")
     p <- p+scale_x_sqrt(expand = c(0, 0))
   else
-    p <- p+ scale_x_continuous(limits = c(c(min(datos$ERROR)),max(datos$ERROR)), expand = c(0, 0))
+    p <- p+ scale_x_continuous(limits = c(c(0.9*min(datos$ERROR)),1.1*max(datos$ERROR)), expand = c(0, 0))
   return(p)
   return(p)
 }
@@ -136,15 +137,15 @@ for (nexper in lexper)
     print("RSE")
     print(summary(datos$RSE))
     prse <- ploterror(datoserr,"RSE")
-    phrse <- plothistoerror(datoserr,"RSE",Hoja,quadratic="yes")   
+    phrse <- plothistoerror(datoserr,"RSE",Hoja,logaritmico="yes")   
     
     
     datoserr$ERROR <- datos$R2
     print(paste("Method",Hoja))
     print("R2")
     print(summary(datos$R2))
-    pr2 <- ploterror(datoserr,"R2")
-    phr2 <- plothistoerror(datoserr,"R2",Hoja,quadratic="yes")   
+    pr2 <- ploterror(datoserr,"$R^2$")
+    phr2 <- plothistoerror(datoserr,"$R^2$",Hoja,logaritmico="yes")   
     
     
     

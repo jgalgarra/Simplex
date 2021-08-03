@@ -9,9 +9,9 @@ For each experiment, there is a random training/testing split.
 Prediction errors (MSE, RMSE, RSE) by model and experiment are stored as individual sheets at 
 results/ALLFEATURES_N.xlsx where N stands for the number of experiments. 
 
-Invocation: python ALLFEATURES_predictor.py
+Invocation: python ALL_FEATURES_predictor.py
 If the invocation is python ALLFEATURES_predictor.py n, then precipitation feature is excluded and the results
-file is called ALLFEATURES_NOPRECIP_N.xlsx
+file is called ALL_FEATURES_NOPRECIP_N.xlsx
 
 """
 import random
@@ -206,8 +206,12 @@ for i in range(0, nexper):
     error_values_xgb.append((mse_xgb,rmse_xgb,rse_xgb))
     print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_xgb,rmse_xgb,rse_xgb))
 
+if include_precip:
+    prstr = ""
+else:
+    prstr = "_NOPRECIP"
 
-with xlsxwriter.Workbook('../results/ALLFEATURES_'+str(nexper)+'.xlsx') as workbook:
+with xlsxwriter.Workbook('../results/ALLFEATURES_'+str(nexper)+prstr+'.xlsx') as workbook:
     worksheet = workbook.add_worksheet('Linear Regressor')
     worksheet.write_row(0, 0, ['MSE','RMSE','RSE'])
     for row_num, data in enumerate(error_values_lr):

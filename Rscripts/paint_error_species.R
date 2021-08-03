@@ -89,7 +89,6 @@ q <- ggplot(d,aes(x=RMSE,y=Species, color = Species)) +
   
   s <- ggplot(d,aes(x=R2,y=Species, color = Species))+
     geom_jitter(height = 0.2,alpha=0.15)+theme_bw()+ggtitle("")+ylab("")+
-    #scale_x_log10(breaks = etqs, labels = etqs,limits = c(0.01, 120000))+
     theme_bw()+
     theme(panel.border = element_blank(),
           panel.grid.minor.x = element_blank(),
