@@ -118,14 +118,14 @@ seed_value = 4
 random.seed(seed_value)
   
 print("nexper",nexper)
-for i in range(0, nexper):
+for j in range(0, nexper):
     
     print("============================================================================")
     print("============================================================================")
     print("============================================================================")
     print("============================================================================")
     print("============================================================================")
-    print("======================== ITER: "+str(i)+" ==================================")
+    print("======================== ITER: "+str(j)+" ==================================")
     print("============================================================================")
     print("============================================================================")
     print("============================================================================")
@@ -252,7 +252,7 @@ for i in range(0, nexper):
     rmse_rf_final = np.sqrt(metrics.mean_squared_error(y_ind, avg_results_rf))
     mse_rf_final = mean_squared_error(y_ind,avg_results_rf)
     rse_rf_final = rse.calc_rse(y_ind,avg_results_rf.prediction)
-    if (i==0):   # Write individual predictions
+    if (j==0):   # Write individual predictions for firts iteration
         df1 = pd.DataFrame({"real":y_ind,
                         "prediction":avg_results_rf.prediction})
         df1.to_csv('../results/TWO_STEP_rfpred.csv',index=False)

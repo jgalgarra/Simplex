@@ -1,3 +1,14 @@
+# Plot prediction errors of the ABIOTIC and TWO STEP methods
+# Author: Javier Garcia-Algarra
+# August 2021
+#
+# The script reads one simulation run of ABIOTIC and TWO STEP methods and
+# plot the prediction errors (e = y - y') by number of individuals for all
+# species
+#
+# Results: plots/Errors_indivs (both .png and. tiff) 
+
+
 library("Metrics")
 library(grid)
 library(gridExtra)
@@ -27,7 +38,8 @@ mybreaks=c(0,0.1,1,3,5,10,50,100,200,500)
 plot_error <- function(datos,relleno="blue",titulo=""){
   p <- ggplot(data=datos)+
        geom_point(aes(x=real,y=error),size=2, shape=19, color=relleno, alpha=0.05)+
-       ggtitle(titulo) + scale_x_sqrt(breaks=mybreaks)+
+       geom_text(x=1, y=275, label=titulo, hjust=0) + 
+       scale_x_sqrt(breaks=mybreaks)+
        ylim(c(-250,300))+theme_bw()+ylab("Error")+xlab("Individuals")+
        theme(        axis.text = element_text(face="bold", size=11),
                      axis.title.x = element_text(face="bold", size=13),
