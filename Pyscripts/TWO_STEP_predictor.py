@@ -252,11 +252,11 @@ for i in range(0, nexper):
     rmse_rf_final = np.sqrt(metrics.mean_squared_error(y_ind, avg_results_rf))
     mse_rf_final = mean_squared_error(y_ind,avg_results_rf)
     rse_rf_final = rse.calc_rse(y_ind,avg_results_rf.prediction)
-    
-    df1 = pd.DataFrame({"real":y_ind,
-                    "prediction":avg_results_rf.prediction})
-    df1.to_csv('../results/TWO_STEP_rfpred.csv',index=False)
-     
+    if (i==0):   # Write individual predictions
+        df1 = pd.DataFrame({"real":y_ind,
+                        "prediction":avg_results_rf.prediction})
+        df1.to_csv('../results/TWO_STEP_rfpred.csv',index=False)
+         
     print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_rf_final,rmse_rf_final,rse_rf_final))
     error_values_rf.append((mse_rf_final,rmse_rf_final,rse_rf_final))
        

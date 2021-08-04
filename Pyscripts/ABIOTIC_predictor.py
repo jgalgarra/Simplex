@@ -189,7 +189,7 @@ for i in range(0, nexper):
     print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_rf,rmse_rf,rse_rf))
     
     
-    if include_precip:   # Wirte individual predictions only in precip is included
+    if ((include_precip) and (i==0)):   # Write individual predictions only in precip is included
         df1 = pd.DataFrame({"real":y,
                         "prediction":avg_results_rf.prediction})    
         df1.to_csv('../results/abiopred.csv',index=False)
