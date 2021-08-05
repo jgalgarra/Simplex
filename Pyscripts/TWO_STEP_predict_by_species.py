@@ -40,16 +40,14 @@ num_cols = len(conditions.columns)
 print("This dataset has {0} rows and {1} columns".format(num_rows, num_cols))
 
 
-col_list = ['species', 'individuals',
-        'ph', 'salinity', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-        'k', 'precip', 'present', 'x', 'y',
-        'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
-        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
-        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
+col_list = ['species', 'individuals', 'ph', 'salinity', 'co3', 'c', 'p', 'ca', 
+            'mg', 'precip', 'x', 'y','present',
+            'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
+            'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
+            'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
 
-train_list = ['species', 'individuals', 
-        'ph', 'salinity', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-        'k',  'precip', 'x','y']
+train_list = ['species', 'individuals', 'ph', 'salinity', 'co3', 'c', 'p', 'ca', 
+              'mg', 'precip', 'x', 'y','present',]
 
 conditions = conditions[col_list]
 
