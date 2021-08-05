@@ -44,15 +44,14 @@ print("This dataset has {0} rows and {1} columns".format(num_rows, num_cols))
 
 if include_precip:
    col_list = ['species', 'individuals',
-       'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-       'k', 'na', 'precip', 'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 
+       'ph', 'salinity', 'co3', 'c', 'p', 'ca', 'mg',
+       'precip',  'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 
        'HOMA', 'LEMA', 'LYTR',
        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
 else:
-   col_list = ['species', 'individuals',
-       'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-       'k', 'na', 'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 
+   col_list = ['species', 'individuals','ph', 'salinity', 'co3', 'c', 'p', 'ca', 'mg',
+       'precip',  'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 
        'HOMA', 'LEMA', 'LYTR',
        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']

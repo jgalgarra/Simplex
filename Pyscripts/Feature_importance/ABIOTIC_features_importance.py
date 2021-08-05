@@ -41,11 +41,11 @@ print("This dataset has {0} rows and {1} columns".format(num_rows, num_cols))
 
 if include_precip:
    base_list = ['species','individuals','ph','salinity','precip',
-                'cl','co3','c','mo','n','cn','p','ca','mg','k','na']
+                'co3','c','p','ca','mg']
 
 else:
    base_list = ['species','individuals','ph','salinity',
-                'cl','co3','c','mo','n','cn','p','ca','mg','k','na']
+                'cl','co3','c','p','ca','mg']
 col_list = base_list.copy()
 individuals_train = individuals_train[col_list]
 individuals_types = individuals_train.dtypes
