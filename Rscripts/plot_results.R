@@ -16,7 +16,7 @@ library(latex2exp)
 
 lHojas <- c("Linear Regressor","Random Forest","XGBoost")
 # Vector with the numbers of experiments of each run
-lexper <- c(100)
+lexper <- c(300)
 pathresults = "../results"
 suffix_method <- "" #"_blocked"
 
