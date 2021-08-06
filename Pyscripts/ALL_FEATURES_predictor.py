@@ -9,6 +9,8 @@ For each experiment, there is a random training/testing split.
 Prediction errors (MSE, RMSE, RSE) by model and experiment are stored as individual sheets at 
 results/ALLFEATURES_N.xlsx where N stands for the number of experiments. 
 
+If precipitacion is included it saves the prediction of the first run at results/ALLFEATURES_pred.csv
+
 Invocation: python ALL_FEATURES_predictor.py
 If the invocation is python ALLFEATURES_predictor.py n, then precipitation feature is excluded and the results
 file is called ALL_FEATURES_NOPRECIP_N.xlsx
@@ -205,6 +207,10 @@ for i in range(0, nexper):
     
     error_values_xgb.append((mse_xgb,rmse_xgb,rse_xgb))
     print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_xgb,rmse_xgb,rse_xgb))
+    if ((include_precip) and (i==0)):   # Write individual predictions only in precip is included
+        df1 = pd.DataFrame({"real":y,
+                        "prediction":avg_results_rf.prediction})    
+        df1.to_csv('../results/ALLFEATURES_pred.csv',index=False)
 
 if include_precip:
     prstr = ""

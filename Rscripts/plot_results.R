@@ -48,9 +48,9 @@ plothistoerror <- function(datos,texto,metodo,logaritmico="no"){
                                  data=datos, position="identity", bins =40)+ 
     xlab(TeX(texto))+ylab("Density\n")+    scale_y_continuous(expand=c(0,0))+
     geom_vline(data = med_df, aes(xintercept = median, 
-                                  color = Set), size=0.3,alpha=0.8)+ 
+                                  color = Set), size=0.7,alpha=0.8)+ 
     
-    scale_fill_manual(values=c("blue","red","green4"))+#,name=gsub("_"," ",metodo))+ 
+    scale_fill_manual(values=c("blue","red","green4"))+
     scale_color_manual(values=c("blue","red","green4"))+
     guides(fill=guide_legend(gsub("_"," ",metodo)), fill = FALSE)+
     guides(color="none", color = FALSE)+
@@ -69,7 +69,7 @@ plothistoerror <- function(datos,texto,metodo,logaritmico="no"){
   if (logaritmico == "yes")
     p <- p+scale_x_sqrt(expand = c(0, 0))
   else
-    p <- p+ scale_x_continuous(limits = c(c(0.9*min(datos$ERROR)),1.1*max(datos$ERROR)), expand = c(0, 0))
+    p <- p+ scale_x_continuous(limits = c(c(min(datos$ERROR)),max(datos$ERROR)), expand = c(0, 0))
   return(p)
   return(p)
 }

@@ -9,6 +9,8 @@ abiotic features and predicted competitors are joined to train the models: linea
 Prediction errors (MSE, RMSE, RSE) by model and experiment are stored as individual sheets at 
 results/TWOSTEP_N.xlsx where N stands for the number of experiments. 
 
+If precipitacion is included it saves the prediction of the first run at results/TWO_STEP_rfpred.csv
+
 Invocation: python TWOSTEP_predictor.py
 
 CAUTION: This script is CPU-intensive. Running 100 experiments take hours.

@@ -7,11 +7,13 @@ Only abiotic features are included to train the models: linear regression, Rando
 For each experiment, there is a random training/testing split.
 
 Prediction errors (MSE, RMSE, RSE) by model and experiment are stored as individual sheets at 
-results/ALLFEATURES_N.xlsx where N stands for the number of experiments. 
+results/ABIOTIC_N.xlsx where N stands for the number of experiments. 
 
-Invocation: python ALLFEATURES_predictor.py
-If the invocation is python ALLFEATURES_predictor.py n, then precipitation feature is excluded and the results
-file is called ALLFEATURES_NOPRECIP_N.xlsx
+If precipitacion is included it saves the prediction of the first run at results/abiopred.csv
+
+Invocation: python ABIOTIC_predictor.py
+If the invocation is python ABIOTIC_predictor.py n, then precipitation feature is excluded and the results
+file is called ABIOTIC_NOPRECIP_N.xlsx
 
 """
 
