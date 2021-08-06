@@ -16,7 +16,7 @@ library(latex2exp)
 
 lHojas <- c("Linear Regressor","Random Forest","XGBoost")
 # Vector with the numbers of experiments of each run
-lexper <- c(300)
+lexper <- c(100)
 pathresults = "../results"
 suffix_method <- "" #"_blocked"
 
@@ -44,8 +44,9 @@ plothistoerror <- function(datos,texto,metodo,logaritmico="no"){
   med_df <- datos %>%
     group_by(Set) %>%
     summarize(median=median(ERROR))
-  p <- ggplot(datos,aes(x=ERROR)) + geom_histogram(aes(y=..density.. , fill = Set),  alpha = .2,
-                                 data=datos, position="identity", bins =40)+ 
+  p <- ggplot(datos,aes(x=ERROR))+ geom_histogram(aes(y=..count../sum(..count..) , fill = Set),  
+                                                   alpha = .2,
+                                   data=datos, position="identity", bins =40)+ 
     xlab(TeX(texto))+ylab("Density\n")+    scale_y_continuous(expand=c(0,0))+
     geom_vline(data = med_df, aes(xintercept = median, 
                                   color = Set), size=0.7,alpha=0.8)+ 
