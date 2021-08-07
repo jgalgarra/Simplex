@@ -48,20 +48,22 @@ plot_error <- function(datos,relleno="blue",titulo=""){
 perror_twostep <- plot_error(twosteppred,titulo=sprintf("TWO STEP RMSE: %.02f R2: %.03f",rmse_twostep,1-rse_twostep)) 
 perror_abio <- plot_error(abiopred,relleno="red",titulo=sprintf("ABIOTIC RMSE: %.02f R2: %.03f",rmse_abio,1-rse_abio)) 
 
+he_plot <- 10
+wi_plot <- 8
 odir <- "../plots"
 if (!dir.exists(odir))
   dir.create(odir)
 ppi <- 300
 nfile <- paste0(odir,"/Errors_indivs")
-png(paste0(nfile,".png"), width=15*ppi, height=5*ppi, res=ppi)
+png(paste0(nfile,".png"), width = wi_plot*ppi, height = he_plot*ppi, res=ppi)
 g <- plot_grid(
   perror_twostep, perror_abio,
-  ncol = 2,labels=c("A","B"),
+  ncol = 1,labels=c("A","B"),
   label_size = 16
 )
 print(g)
 dev.off()
 
-tiff(paste0(nfile,".tiff"), units="in", width=15, height=5, res=ppi)
+tiff(paste0(nfile,".tiff"), units="in", width = wi_plot, height = he_plot, res=ppi)
 print(g)
 dev.off()
