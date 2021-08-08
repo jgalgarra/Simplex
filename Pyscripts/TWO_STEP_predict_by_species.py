@@ -40,16 +40,14 @@ num_cols = len(conditions.columns)
 print("This dataset has {0} rows and {1} columns".format(num_rows, num_cols))
 
 
-col_list = ['species', 'individuals',
-       'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-       'k', 'na', 'precip', 'present',
-       'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
-       'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
-       'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
+col_list = ['species', 'individuals', 'ph', 'salinity', 'co3', 'c', 'p', 'ca', 
+            'mg', 'precip', 'x', 'y','present',
+            'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
+            'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
+            'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
 
-train_list = ['species', 'individuals', 
-       'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-       'k', 'na', 'precip', 'present']
+train_list = ['species', 'individuals', 'ph', 'salinity', 'co3', 'c', 'p', 'ca', 
+              'mg', 'precip', 'x', 'y','present',]
 
 conditions = conditions[col_list]
 
@@ -116,7 +114,6 @@ for i in range(0, nexper):
     rse_rf = {}
     
     
-    
     features_to_pred = ['BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
            'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
            'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
@@ -137,13 +134,11 @@ for i in range(0, nexper):
     
     "Parámetros Random Forest"
     
-    n_estimators = [100,150]
+    n_estimators = [100]
     max_features = ['auto']
     #Grid Search
     random_grid = {'n_estimators': n_estimators,
                'max_features': max_features}
-    
-    
     
     for x in range(0, len(features_to_pred)):
     
@@ -192,14 +187,14 @@ for i in range(0, nexper):
     data = X_individuals.join(y_individuals)    
     data['species'] = species_scaled['id'].tolist()
     
-    sm = SMOTE(random_state=42)
-    data, y_res = sm.fit_resample(data[['species', 'individuals',
-        'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-        'k', 'na', 'precip',
-        'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
-        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
-        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']], data[['present']])
-    data = data.join(y_res)
+    # sm = SMOTE(random_state=42)
+    # data, y_res = sm.fit_resample(data[['species', 'individuals',
+    #     'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
+    #     'k', 'na', 'precip',
+    #     'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
+    #     'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
+    #     'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']], data[['present']])
+    # data = data.join(y_res)
     
     
     X_ind = data[selected_features]
@@ -229,7 +224,7 @@ for i in range(0, nexper):
     seed_value = 4
     
     rf = RandomForestRegressor(n_jobs = -1)
-    rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, cv = 7, verbose=2, n_jobs = -1)
+    rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, cv = 4, verbose=2, n_jobs = -1)
     
     rf_random.fit(X_train_individuals,y_train_individuals)
     predictions_rf = rf_random.best_estimator_.predict(X_test_individuals)

@@ -9,12 +9,15 @@ abiotic features and predicted competitors are joined to train the models: linea
 Prediction errors (MSE, RMSE, RSE) by model and experiment are stored as individual sheets at 
 results/TWOSTEP_N.xlsx where N stands for the number of experiments. 
 
+If precipitacion is included it saves the prediction of the first run at results/TWO_STEP_rfpred.csv
+
 Invocation: python TWOSTEP_predictor.py
 
 CAUTION: This script is CPU-intensive. Running 100 experiments take hours.
 
 """
 
+import random
 import pandas as pd
 pd.set_option('display.max_colwidth', -1)
 import numpy as np
@@ -27,10 +30,13 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
+from sklearn.model_selection import GridSearchCV, KFold, cross_val_predict
+import xgboost
+import verde as vd
 from sklearn.metrics import mean_squared_error
+from sklearn.metrics import r2_score
 from imblearn.over_sampling import SMOTE
 import xgboost
-
 import os
 import rse
 
@@ -40,25 +46,26 @@ print("======================")
 
 environment_train = pd.read_csv('../datasets/abund_merged_dataset_onlyenvironment.csv', sep=',')
 competitors_train = pd.read_csv('../datasets/abund_merged_dataset_onlycompetitors.csv', sep=',')
+coord_plot = pd.read_csv('../datasets/coord_plot.csv', sep=';')
 
 conditions = environment_train.merge(competitors_train)
- 
+
+coord_plot["plotID"] = coord_plot["Plot"].apply(str) + coord_plot["Subplot"].apply(lambda x: '_'+x)
+conditions = conditions.merge(coord_plot.drop(columns = ["Plot","Subplot"]), on = "plotID", how = "inner")
 
 num_rows = len(conditions)
 num_cols = len(conditions.columns)
 print("This dataset has {0} rows and {1} columns".format(num_rows, num_cols))
 
-
 col_list = ['species', 'individuals',
-       'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-       'k', 'na', 'precip', 'present',
-       'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
-       'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
-       'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
+       'ph', 'salinity', 'co3', 'c', 'p', 'ca', 'mg',
+       'precip', 'x', 'y','present',
+        'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
+        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
+        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']
 
-train_list = ['species', 'individuals', 
-       'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-       'k', 'na', 'precip', 'present']
+train_list = ['species', 'individuals', 'ph', 'salinity', 'co3', 'c', 'p', 
+              'ca', 'mg', 'precip', 'x','y']
 
 conditions = conditions[col_list]
 
@@ -108,15 +115,18 @@ if not os.path.exists(outputdir):
 with open('experiments.txt', 'r') as g:
   nexper = int(g.readlines()[0])
   
+seed_value = 4
+random.seed(seed_value)
+  
 print("nexper",nexper)
-for i in range(0, nexper):
+for j in range(0, nexper):
     
     print("============================================================================")
     print("============================================================================")
     print("============================================================================")
     print("============================================================================")
     print("============================================================================")
-    print("======================== ITER: "+str(i)+" ==================================")
+    print("======================== ITER: "+str(j)+" ==================================")
     print("============================================================================")
     print("============================================================================")
     print("============================================================================")
@@ -134,15 +144,7 @@ for i in range(0, nexper):
     X[['present']] = conditions[['present']]
     y = conditions[features_to_pred]
     
-    X_train_species, X_test_species, y_train_species, y_test_species = train_test_split(X, y, train_size= 0.8)
-    "Parámetros Random Forest"
-    
-    n_estimators = [100,150]
-    max_features = ['auto']
-    #Grid Search
-    random_grid = {'n_estimators': n_estimators,
-               'max_features': max_features}
-    
+  
     
     
     for i in range(0, len(features_to_pred)):
@@ -152,31 +154,25 @@ for i in range(0, nexper):
         
         "Division Train Test"
         
+        pred_compe_rf = np.array([])
+        index_compe_test = []
         
-        X_train = X_train_species
-        y_train = y_train_species[variables_to_ignore]
+        kfold = vd.BlockKFold(spacing = 0.5, n_splits=4, shuffle=True)    
+        rf = RandomForestRegressor(random_state= seed_value, n_jobs = -1)
         
-        X_test = X_test_species
-        y_test = y_test_species[variables_to_ignore]
-        
+        for train, test in kfold.split(np.array(X[['x','y']])):
             
-        "Algoritmos y Evaluación"
+            index_compe_test = np.concatenate((index_compe_test, test), axis=None)
+            
+            rf.fit(X.iloc[train],y.iloc[train][variables_to_ignore])
+            predictions_rf = rf.predict(X.iloc[test])
+            pred_compe_rf = np.concatenate((pred_compe_rf, predictions_rf), axis=None)
+
+        results_compe_rf = pd.concat([pd.Series(index_compe_test), pd.Series(pred_compe_rf)], axis = 1)
+        results_compe_rf.columns = ['test_index', 'prediction']
+        avg_results_compe_rf = results_compe_rf.groupby('test_index').median()
         
-        "Random Forest"
-        
-        rf = RandomForestRegressor(n_jobs = -1)
-        rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, cv = 7, verbose=2, n_jobs = -1)
-        
-        rf_random.fit(X_train,y_train)
-        predictions_rf = rf_random.best_estimator_.predict(X_test)
-        
-        y_pred[variables_to_ignore] = predictions_rf
-        rmse_rf[variables_to_ignore] = np.sqrt(metrics.mean_squared_error(y_test, predictions_rf))
-        mse_rf = mean_squared_error(y_test,predictions_rf)
-        rse_rf = rse.calc_rse(y_test,predictions_rf)
-        #print("RMSE: "+str(rmse_rf[variables_to_ignore]))
-        print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_rf,rmse_rf[variables_to_ignore],rse_rf))
-    
+        y_pred[variables_to_ignore] = np.array(avg_results_compe_rf['prediction'])
     
     
     
@@ -185,73 +181,93 @@ for i in range(0, nexper):
     features_to_pred = ['individuals']
     selected_features = [element for element in col_list if element not in features_to_pred]
     
-    new_X = X_test_species.reset_index().drop(['index'], axis = 1)
     y_predictions = pd.DataFrame.from_dict(y_pred)
     y_predictions = y_predictions.applymap(lambda x: math.floor(x))
-    X_individuals = new_X.join(y_predictions)[selected_features]
+    X_individuals = X.join(y_predictions)[selected_features]
     
-    y_individuals = conditions[features_to_pred].iloc[y_test_species.index].reset_index().drop(['index'], axis = 1)
+    y_individuals = conditions[features_to_pred]
     
-    data = X_individuals.join(y_individuals)
-        
-    sm = SMOTE(random_state=42)
-    data, y_res = sm.fit_resample(data[['species', 'individuals',
-        'ph', 'salinity', 'cl', 'co3', 'c', 'mo', 'n', 'cn', 'p', 'ca', 'mg',
-        'k', 'na', 'precip',
-        'BEMA', 'CETE', 'CHFU', 'CHMI', 'COSQ', 'FRPU', 'HOMA', 'LEMA', 'LYTR',
-        'MEEL', 'MEPO', 'MESU', 'PAIN', 'PLCO', 'POMA', 'POMO', 'PUPA', 'RAPE',
-        'SASO', 'SCLA', 'SOAS', 'SPRU', 'SUSP']], data[['present']])
-    data = data.join(y_res)
-    
+    data = X_individuals.join(y_individuals)  
     
     X_ind = data[selected_features]
     y_ind = data['individuals']
     
-    X_train_individuals, X_test_individuals, y_train_individuals, y_test_individuals = train_test_split(X_ind, y_ind, train_size= 0.8)
+    "Blocked KFold"
+    
+    pred_values_lr = np.array([])
+    pred_values_rf = np.array([])
+    pred_values_xgb = np.array([])
+    index_test = []
+    
+    kfold = vd.BlockKFold(spacing = 0.5, n_splits=4, shuffle=True)
+    
     
     "Algorithms and evaluation"
-
-    "Linear Regression"
     
     reg = LinearRegression()
-    reg.fit(X_train_individuals,y_train_individuals)
+    rf = RandomForestRegressor(random_state= seed_value, n_jobs = -1)
+    xgb = xgboost.XGBRegressor()
     
-    predictions_lr = reg.predict(X_test_individuals)
+    for train, test in kfold.split(np.array(X_ind[['x','y']])):
+        
+        index_test = np.concatenate((index_test, test), axis=None)
+        
+        reg.fit(X_ind.iloc[train],y_ind.iloc[train])
+        rf.fit(X_ind.iloc[train],y_ind.iloc[train])
+        xgb.fit(X_ind.iloc[train],y_ind.iloc[train])
+        
+        predictions_lr = reg.predict(X_ind.iloc[test])
+        pred_values_lr = np.concatenate((pred_values_lr, predictions_lr), axis=None)
+        
+        predictions_rf = rf.predict(X_ind.iloc[test])
+        pred_values_rf = np.concatenate((pred_values_rf, predictions_rf), axis=None)
+        
+        predictions_xgb = xgb.predict(X_ind.iloc[test])
+        pred_values_xgb = np.concatenate((pred_values_xgb, predictions_xgb), axis=None)
+
     
-    rmse_lr = np.sqrt(metrics.mean_squared_error(y_test_individuals, predictions_lr))
-    mse_lr = mean_squared_error(y_test_individuals,predictions_lr)
-    rse_lr = rse.calc_rse(y_test_individuals,predictions_lr)
+    "Median prediction"
+    
+    results_lr = pd.concat([pd.Series(index_test), pd.Series(pred_values_lr)], axis = 1)
+    results_lr.columns = ['test_index', 'prediction']
+    avg_results_lr = results_lr.groupby('test_index').median()
+    
+    results_rf = pd.concat([pd.Series(index_test), pd.Series(pred_values_rf)], axis = 1)
+    results_rf.columns = ['test_index', 'prediction']
+    avg_results_rf = results_rf.groupby('test_index').median()
+    
+    results_xgb = pd.concat([pd.Series(index_test), pd.Series(pred_values_xgb)], axis = 1)
+    results_xgb.columns = ['test_index', 'prediction']
+    avg_results_xgb = results_xgb.groupby('test_index').median()
+    
+    "Error Calculation"
+    
+    rmse_lr = np.sqrt(metrics.mean_squared_error(y_ind, avg_results_lr))
+    mse_lr = mean_squared_error(y_ind,avg_results_lr)
+    rse_lr = rse.calc_rse(y_ind,avg_results_lr.prediction)
     
     print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_lr,rmse_lr,rse_lr))
     error_values_lr.append((mse_lr,rmse_lr,rse_lr))
     
-    "Random Forest"
-
-    seed_value = 4
-    
-    rf = RandomForestRegressor(random_state= seed_value, n_jobs = -1, n_estimators = 150)
-    rf.fit(X_train_individuals,y_train_individuals)
-    predictions_rf = rf.predict(X_test_individuals)
       
-    rmse_rf_final = np.sqrt(metrics.mean_squared_error(y_test_individuals, predictions_rf))
-    mse_rf_final = mean_squared_error(y_test_individuals,predictions_rf)
-    rse_rf_final = rse.calc_rse(predictions_rf,mse_rf_final)
-    
+    rmse_rf_final = np.sqrt(metrics.mean_squared_error(y_ind, avg_results_rf))
+    mse_rf_final = mean_squared_error(y_ind,avg_results_rf)
+    rse_rf_final = rse.calc_rse(y_ind,avg_results_rf.prediction)
+    if (j==0):   # Write individual predictions for firts iteration
+        df1 = pd.DataFrame({"real":y_ind,
+                        "prediction":avg_results_rf.prediction})
+        df1.to_csv('../results/TWO_STEP_rfpred.csv',index=False)
+         
     print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_rf_final,rmse_rf_final,rse_rf_final))
     error_values_rf.append((mse_rf_final,rmse_rf_final,rse_rf_final))
        
-    "XGBoost Regressor"
-
-    xgb = xgboost.XGBRegressor()
-    xgb.fit(X_train_individuals,y_train_individuals)
     
-    predictions_xgb = xgb.predict(X_test_individuals)
-    
-    rmse_xgb = np.sqrt(metrics.mean_squared_error(y_test_individuals, predictions_xgb))
-    mse_xgb = mean_squared_error(y_test_individuals,predictions_xgb)
-    rse_xgb = rse.calc_rse(y_test_individuals,predictions_xgb)
+    rmse_xgb = np.sqrt(metrics.mean_squared_error(y_ind, avg_results_xgb))
+    mse_xgb = mean_squared_error(y_ind,avg_results_xgb)
+    rse_xgb = rse.calc_rse(y_ind,avg_results_xgb.prediction)
     
     print("mse {:.4f} rmse {:.4f} rse {:.4f}".format(mse_xgb,rmse_xgb,rse_xgb))
+    
     error_values_xgb.append((mse_xgb,rmse_xgb,rse_xgb))
 
 with xlsxwriter.Workbook(outputdir+'/TWOSTEP_'+str(nexper)+'.xlsx') as workbook:

@@ -100,3 +100,4 @@ Invoke in the following order:
 * `twostep_errors_species.R`
 * `plot_results.R`
 * `twostep_errors_species.R`
+* `plot_error_byindividuals.R`

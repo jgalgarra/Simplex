@@ -41,11 +41,11 @@ print("This dataset has {0} rows and {1} columns".format(num_rows, num_cols))
 
 if include_precip:
    base_list = ['species','individuals','ph','salinity','precip',
-                'cl','co3','c','mo','n','cn','p','ca','mg','k','na']
+                'co3','c','p','ca','mg']
 
 else:
    base_list = ['species','individuals','ph','salinity',
-                'cl','co3','c','mo','n','cn','p','ca','mg','k','na']
+                'cl','co3','c','p','ca','mg']
 col_list = base_list.copy()
 individuals_train = individuals_train[col_list]
 individuals_types = individuals_train.dtypes
@@ -58,6 +58,7 @@ individuals_train[['species']] = le.transform(individuals_train[['species']])
 
 if verbose:
     print(individuals_train.dtypes)
+    
 
 "Random Forest Feature Importance"
 
@@ -91,6 +92,14 @@ selected_features = feature_importance.index[selected_features].tolist()
 feature_importance.reset_index(inplace = True)
 
 feature_importance.to_csv("feature_importance_ABIOTIC_rf.csv")
+
+
+"Linear prediction summary"
+import statsmodels.api as sm      
+lm_1 = sm.OLS(y, X).fit()
+print(lm_1.summary())
+
+
 
 "Correlation with Target"
 
