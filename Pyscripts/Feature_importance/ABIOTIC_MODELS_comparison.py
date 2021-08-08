@@ -1,8 +1,8 @@
 """
 Created on Sun Aug  9 11:37:50 2020
 @author: Iciar Civantos
-This script builds the individuals predictor using weather and soil data and computes features correlation
-and features importance.
+This script builds computes the feature importance 'a posteriori' to compare
+the RF and l inear regression models
 """
 
 import pandas as pd
@@ -40,12 +40,12 @@ num_cols = len(individuals_train.columns)
 print("This dataset has {0} rows and {1} columns".format(num_rows, num_cols))
 
 if include_precip:
-   base_list = ['species','individuals','ph','salinity','precip',
-                'co3','c','p','ca','mg']
+   base_list = ['species','individuals','salinity','precip',
+                'co3','c','p','ca']
 
 else:
-   base_list = ['species','individuals','ph','salinity',
-                'cl','co3','c','p','ca','mg']
+   base_list = ['species','individuals','salinity',
+                'co3','c','p','ca']
 col_list = base_list.copy()
 individuals_train = individuals_train[col_list]
 individuals_types = individuals_train.dtypes
@@ -91,35 +91,10 @@ selected_features = feature_importance.index[selected_features].tolist()
 
 feature_importance.reset_index(inplace = True)
 
-feature_importance.to_csv("feature_importance_ABIOTIC_rf.csv")
+feature_importance.to_csv("feature_importance_ABIOTIC_rf_aposteriori.csv")
 
 
 "Linear prediction summary"
 import statsmodels.api as sm      
 lm_1 = sm.OLS(y, X).fit()
 print(lm_1.summary())
-
-
-
-"Correlation with Target"
-
-correlation_target = individuals_train.drop(columns=['individuals']).corrwith(individuals_train['individuals']).sort_values()
-correlation_target
-
-"Correlation All Features"
-
-correlation_matrix = individuals_train.corr(method='spearman')
-correlation_matrix.to_csv("correlation_ABIOTIC_rf.csv")
-figure_size = (36, 28)
-fig, ax = plt.subplots(figsize=figure_size)
-sns.set(font_scale=3)
-sns.heatmap(correlation_matrix, cmap=sns.diverging_palette(220, 20, as_cmap=True),
-            xticklabels=list(correlation_matrix), 
-            yticklabels=list(correlation_matrix), alpha=0.7,
-            annot=True, fmt='.2f', linewidths = 0.5, ax=ax)
-ax.figure.axes[-1].set_ylabel('Spearman correlation %', size=50)
-ax.set_yticklabels(ax.get_ymajorticklabels(), fontsize = 50)
-ax.set_xticklabels(ax.get_xmajorticklabels(), fontsize = 50)
-plt.xticks(rotation=90)
-plt.yticks(rotation=0)
-plt.savefig("correlation_ABIOTIC.png")

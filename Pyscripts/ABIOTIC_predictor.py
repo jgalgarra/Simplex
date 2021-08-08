@@ -39,6 +39,8 @@ import rse
 import os
 verbose = True
 
+
+
 if (len(sys.argv)>2):
     print("ERROR. Usage: ABIOTIC_predictor.py [include_precipitation]")
     exit()
@@ -147,7 +149,7 @@ for i in range(0, nexper):
     for train, test in kfold.split(np.array(X[['x','y']])):
         index_test = np.concatenate((index_test, test), axis=None)
         
-        reg.fit(X.iloc[train],y.iloc[train])
+        lrres = reg.fit(X.iloc[train],y.iloc[train])
         rf.fit(X.iloc[train],y.iloc[train])
         xgb.fit(X.iloc[train],y.iloc[train])
         
