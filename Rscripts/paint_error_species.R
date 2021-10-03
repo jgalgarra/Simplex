@@ -64,11 +64,9 @@ for (m in metodos){
           axis.text = element_text(face="bold", size=10),
           axis.title.x = element_text(face="bold", size=11),
           axis.title.y  = element_text(face="bold", size=11))
-  #d <- datos_err_species[datos_err_species$Method==m,]
   d$medianRMSE <- 0
   for (s in unique(d$Species))
     d[d$Species==s,]$medianRMSE=median(d[d$Species == s ,]$RMSE)
-  #d$Species <- reorder(d$Species,d$medianRMSE)
   etqs <- c(0,1,0.5,1, 5, 10, 50)
   q <- ggplot(d,aes(x=RMSE,y=Species, color = Species)) + 
     scale_x_log10(breaks = etqs, labels = etqs,limits = c(0.1, 100))+
@@ -85,8 +83,6 @@ for (m in metodos){
           axis.text = element_text(face="bold", size=10),
           axis.title.x = element_text(face="bold", size=11),
           axis.title.y  = element_text(face="bold", size=11) )
-  
-  
   
   s <- ggplot(d,aes(x=R2,y=Species, color = Species))+
     geom_jitter(height = 0.2,alpha=0.15)+theme_bw()+ggtitle("")+ylab("")+
